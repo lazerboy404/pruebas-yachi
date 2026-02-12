@@ -109,7 +109,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, arrayUnion, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, arrayUnion, enableIndexedDbPersistence, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
         const firebaseConfig = {
@@ -483,17 +483,14 @@
                     for (const item of items) {
                         try {
                             console.log("Subiendo item offline:", item);
-                            // Lógica de subida (similar a la original pero adaptada)
-                            // Reconstruir lógica de nombre si es necesario, o usar el guardado
-                            // NOTA: Para simplificar, usaremos una lógica genérica de subida aquí
                             
-                            const storageReference = storageRef(storage, `evidencias/${item.docId}/${item.fileName}`); // Usamos el nombre original o generado
+                            const storageReference = storageRef(storage, `evidencias/${item.docId}/${item.fileName}`);
                             
-                            // Subir archivo
+                            // 1. Subir archivo
                             const snapshot = await uploadBytes(storageReference, item.file, { contentType: item.file.type });
                             const downloadURL = await getDownloadURL(snapshot.ref);
                             
-                            // Actualizar Firestore
+                            // 2. Preparar objeto de nueva imagen
                             const nuevaImagen = {
                                 nombre: item.fileName,
                                 url: downloadURL,
@@ -501,13 +498,34 @@
                                 fechaSubida: new Date().toISOString()
                             };
 
+                            // 3. Leer documento actual para evitar duplicados y limpiar versiones anteriores
                             const camaraDocRef = doc(db, "camaras", item.docId);
-                            await updateDoc(camaraDocRef, {
-                                imagenes: arrayUnion(nuevaImagen),
-                                fechaActualizacion: new Date()
-                            });
+                            const docSnap = await getDoc(camaraDocRef);
+                            
+                            if (docSnap.exists()) {
+                                const currentData = docSnap.data();
+                                const imagenesActuales = Array.isArray(currentData.imagenes) ? currentData.imagenes : [];
+                                
+                                // Eliminar imagen previa con el mismo nombre si existe (para reemplazarla)
+                                const imagenesFiltradas = imagenesActuales.filter(img => img.nombre !== item.fileName);
+                                
+                                // Agregar la nueva
+                                imagenesFiltradas.push(nuevaImagen);
+                                
+                                // Actualizar Firestore
+                                await updateDoc(camaraDocRef, {
+                                    imagenes: imagenesFiltradas,
+                                    fechaActualizacion: new Date()
+                                });
+                                
+                                // Actualizar UI si el usuario está viendo esta cámara
+                                if (docIdActual === item.docId) {
+                                    // Pequeño delay para asegurar propagación
+                                    setTimeout(() => abrirGaleria(docIdActual), 500);
+                                }
+                            }
 
-                            // Eliminar de IDB si éxito
+                            // 4. Eliminar de IDB si éxito
                             const txDel = (await initDB()).transaction("uploads", "readwrite");
                             txDel.objectStore("uploads").delete(item.id);
 
