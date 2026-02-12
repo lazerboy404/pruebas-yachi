@@ -102,6 +102,16 @@
     
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
 
+    <div id="install-modal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; flex-direction: column;">
+        <div style="background: white; padding: 25px; border-radius: 12px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+            <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 15px;">Instalando Aplicación...</h3>
+            <div style="width: 100%; background: #ecf0f1; height: 12px; border-radius: 6px; margin: 20px 0; overflow: hidden; position: relative;">
+                <div id="install-progress" style="width: 0%; height: 100%; background: #3498db; transition: width 0.1s linear; border-radius: 6px;"></div>
+            </div>
+            <p id="install-text" style="margin: 0; font-size: 14px; color: #7f8c8d; font-weight: 500;">Preparando archivos...</p>
+        </div>
+    </div>
+
     <script>
         let deferredPrompt;
         const installBtn = document.getElementById('install-btn');
@@ -113,10 +123,42 @@
                 installBtn.style.display = 'flex';
                 installBtn.onclick = async () => {
                     if (deferredPrompt) {
-                        installBtn.style.display = 'none';
                         deferredPrompt.prompt();
                         const { outcome } = await deferredPrompt.userChoice;
                         console.log(`User response to the install prompt: ${outcome}`);
+                        
+                        if (outcome === 'accepted') {
+                            installBtn.style.display = 'none';
+                            const modal = document.getElementById('install-modal');
+                            const bar = document.getElementById('install-progress');
+                            const text = document.getElementById('install-text');
+                            
+                            if (modal) {
+                                modal.style.display = 'flex';
+                                let width = 0;
+                                const interval = setInterval(() => {
+                                    width += 2; // Slower progress
+                                    if (width > 100) width = 100;
+                                    
+                                    bar.style.width = width + '%';
+                                    
+                                    if (width < 30) text.textContent = "Preparando entorno...";
+                                    else if (width < 60) text.textContent = "Descargando recursos...";
+                                    else if (width < 90) text.textContent = "Configurando modo offline...";
+                                    else text.textContent = "Finalizando instalación...";
+                                    
+                                    if (width >= 100) {
+                                        clearInterval(interval);
+                                        text.textContent = "¡Instalación completada!";
+                                        text.style.color = "#27ae60";
+                                        setTimeout(() => {
+                                            modal.style.display = 'none';
+                                        }, 1500);
+                                    }
+                                }, 50); // 50ms * 50 steps = 2.5 seconds
+                            }
+                        }
+                        
                         deferredPrompt = null;
                     }
                 };
