@@ -431,10 +431,7 @@ th {
     }
 }
 
-/* PRUEBA: Verificar carga de CSS */
-body {
-    border: 5px solid green !important;
-}
+
 
 /* Estilos para el modal de imágenes */
 .modal-overlay {
@@ -488,45 +485,50 @@ body {
     font-size: 12px;
 }
 
-/* Estilos responsivos para modal de imágenes en gestion.html */
+/* Estilos responsivos para modal de imágenes en gestion.html - VERSIÓN MÓVIL */
 @media (max-width: 768px) {
-    .modal-overlay {
-        align-items: flex-start !important;
-        padding-top: 20px !important;
-        padding-bottom: 20px !important;
+    /* Modal más grande en móvil */
+    #imagen-modal > div {
+        max-width: 98% !important;
+        width: 98% !important;
+        max-height: 92vh !important;
+        min-height: 300px !important;
+        padding: 30px 25px !important;
+        border-radius: 16px !important;
+        margin: 10px auto !important;
     }
     
-    .imagen-modal-content {
-        max-width: 95% !important;
-        width: 95% !important;
-        max-height: 90vh !important;
-        height: 80vh !important;
-        border-radius: 20px !important;
-        padding: 25px 20px !important;
-        margin: 0 !important;
-        background: #000000 !important;
-        border: 2px solid #ff0000 !important;
-    }
-    
-    .imagen-grid-container {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 15px !important;
-        max-height: 65vh !important;
-        overflow-y: auto !important;
-        padding: 15px !important;
-        margin: 0 !important;
-    }
-    
-    .modal-title {
-        font-size: 18px !important;
+    /* Título más grande */
+    #imagen-modal h3 {
+        font-size: 24px !important;
         margin-bottom: 20px !important;
-        margin-top: 0 !important;
     }
     
-    .modal-close-btn {
-        padding: 10px 20px !important;
+    /* Imágenes más grandes en móvil */
+    #imagen-modal img {
+        width: 200px !important;
+        height: 150px !important;
+        border-radius: 10px !important;
+    }
+    
+    /* Botón más grande */
+    #imagen-modal .btn-tech {
+        padding: 14px 28px !important;
+        font-size: 17px !important;
+        margin-top: 20px !important;
+    }
+    
+    /* Grid con más espacio */
+    #imagen-grid {
+        gap: 18px !important;
+        padding: 12px !important;
+        justify-content: space-around !important;
+    }
+    
+    /* Texto de imagen más grande */
+    #imagen-modal div[style*="font-size: 12px"] {
         font-size: 14px !important;
-        margin-top: 15px !important;
+        margin-top: 6px !important;
     }
 }
 

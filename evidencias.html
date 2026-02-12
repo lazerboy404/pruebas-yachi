@@ -255,49 +255,89 @@
             if (!docIdActual) { alert("Selecciona una cámara primero."); return; }
             tipoCargaActual = (tipo === 'INICIAL') ? 'INICIAL' : 'FINAL';
             
-            // Crear input temporal para seleccionar archivo
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.style.display = 'none';
-            
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
+            // En dispositivos móviles, ofrecer opción de tomar foto o elegir de galería
+            if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) {
+                const opcion = confirm(`¿Qué deseas hacer?\n\nAceptar: Tomar foto con la cámara\nCancelar: Elegir de la galería`);
                 
-                try {
-                    // Renombrar el archivo con el formato ID[numero]_[TIPO].[extension]
-                    const extension = file.name.split('.').pop().toLowerCase();
-                    const nuevoNombre = `ID${docIdActual}_${tipo}.${extension}`;
+                if (opcion) {
+                    // Tomar foto con la cámara
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.capture = 'environment'; // Usar cámara trasera
+                    input.style.display = 'none';
                     
-                    // Optimizar la imagen antes de subirla
-                    const imagenOptimizada = await optimizarImagen(file);
+                    input.onchange = async (e) => {
+                        await procesarArchivoSubida(e.target.files[0], tipo);
+                    };
                     
-                    // Guardar el docIdActual actual para usarlo durante la subida
-                    document.getElementById("evid-input").setAttribute("data-doc-id", docIdActual);
+                    document.body.appendChild(input);
+                    input.click();
+                    document.body.removeChild(input);
+                } else {
+                    // Elegir de la galería
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.style.display = 'none';
                     
-                    // Crear un nuevo FileList con el archivo optimizado
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(new File([imagenOptimizada], nuevoNombre, {type: 'image/jpeg'}));
-                    document.getElementById("evid-input").files = dataTransfer.files;
+                    input.onchange = async (e) => {
+                        await procesarArchivoSubida(e.target.files[0], tipo);
+                    };
                     
-                    // Disparar el evento change del input original
-                    document.getElementById("evid-input").dispatchEvent(new Event('change', { bubbles: true }));
-                    
-                } catch (error) {
-                    console.error("Error procesando imagen:", error);
-                    const galeriaFeedback = document.getElementById("galeria-feedback");
-                    if (galeriaFeedback) {
-                        galeriaFeedback.style.color = "#e74c3c";
-                        galeriaFeedback.textContent = "❌ Error al procesar la imagen";
-                    }
+                    document.body.appendChild(input);
+                    input.click();
+                    document.body.removeChild(input);
                 }
-            };
-            
-            document.body.appendChild(input);
-            input.click();
-            document.body.removeChild(input);
+            } else {
+                // En desktop, comportamiento normal
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.style.display = 'none';
+                
+                input.onchange = async (e) => {
+                    await procesarArchivoSubida(e.target.files[0], tipo);
+                };
+                
+                document.body.appendChild(input);
+                input.click();
+                document.body.removeChild(input);
+            }
         };
+        
+        // Función para procesar el archivo subido
+        async function procesarArchivoSubida(file, tipo) {
+            if (!file) return;
+            
+            try {
+                // Renombrar el archivo con el formato ID[numero]_[TIPO].[extension]
+                const extension = file.name.split('.').pop().toLowerCase();
+                const nuevoNombre = `ID${docIdActual}_${tipo}.${extension}`;
+                
+                // Optimizar la imagen antes de subirla
+                const imagenOptimizada = await optimizarImagen(file);
+                
+                // Guardar el docIdActual actual para usarlo durante la subida
+                document.getElementById("evid-input").setAttribute("data-doc-id", docIdActual);
+                
+                // Crear un nuevo FileList con el archivo optimizado
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(new File([imagenOptimizada], nuevoNombre, {type: 'image/jpeg'}));
+                document.getElementById("evid-input").files = dataTransfer.files;
+                
+                // Disparar el evento change del input original
+                document.getElementById("evid-input").dispatchEvent(new Event('change', { bubbles: true }));
+                
+            } catch (error) {
+                console.error("Error procesando imagen:", error);
+                const galeriaFeedback = document.getElementById("galeria-feedback");
+                if (galeriaFeedback) {
+                    galeriaFeedback.style.color = "#e74c3c";
+                    galeriaFeedback.textContent = "❌ Error al procesar la imagen";
+                }
+            }
+        }
         
         // Función para optimizar la imagen (reducir tamaño manteniendo calidad)
         async function optimizarImagen(file) {
