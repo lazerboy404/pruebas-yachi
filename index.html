@@ -56,8 +56,11 @@
 </head>
 <body>
 
-    <header>
-        <h1>DASHBOARD GENERAL</h1>
+    <header style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
+        <h1 style="margin: 0; flex: 1; text-align: center;">DASHBOARD GENERAL</h1>
+        <button id="install-btn" style="display:none; position: absolute; top: 15px; right: 20px; background: #3498db; color: white; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s; align-items: center; justify-content: center;" title="Instalar Aplicación">
+            <i class="fa-solid fa-download"></i>
+        </button>
     </header>
 
     <main>
@@ -98,6 +101,34 @@
     </a>
     
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+
+    <script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installBtn) {
+                installBtn.style.display = 'flex';
+                installBtn.onclick = async () => {
+                    if (deferredPrompt) {
+                        installBtn.style.display = 'none';
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        console.log(`User response to the install prompt: ${outcome}`);
+                        deferredPrompt = null;
+                    }
+                };
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            if (installBtn) installBtn.style.display = 'none';
+            deferredPrompt = null;
+            console.log('PWA was installed');
+        });
+    </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
