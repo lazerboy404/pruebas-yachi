@@ -125,6 +125,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         
+        // Habilitar persistencia offline inmediatamente después de inicializar db
         enableIndexedDbPersistence(db).catch((err) => {
             if (err.code == 'failed-precondition') {
                 console.warn('Persistencia fallida: Múltiples pestañas abiertas.');
@@ -465,8 +466,12 @@
             if (!navigator.onLine) return;
             
             try {
-                const db = await initDB();
-                const tx = db.transaction("uploads", "readonly");
+                // No reinicializar DB aquí, usar la instancia global 'db'
+                // const db = await initDB(); // ESTO ESTABA MAL, initDB devuelve IDBDatabase, no Firestore
+                
+                // Usar initDB solo para IndexedDB
+                const idb = await initDB();
+                const tx = idb.transaction("uploads", "readonly");
                 const store = tx.objectStore("uploads");
                 const request = store.getAll();
                 
