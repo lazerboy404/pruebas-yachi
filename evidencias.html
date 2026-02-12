@@ -480,11 +480,24 @@
                         feedback.style.color = "#3498db";
                     }
 
+                    let successCount = 0;
+                    let failCount = 0;
+
                     for (const item of items) {
                         try {
                             console.log("Subiendo item offline:", item);
                             
+                            // Verificar que el item tenga los datos necesarios
+                            if (!item.docId || !item.fileName || !item.file) {
+                                throw new Error("Datos incompletos en el item guardado");
+                            }
+
                             const storageReference = storageRef(storage, `evidencias/${item.docId}/${item.fileName}`);
+                            
+                            // 1. Asegurar que item.file es un Blob/File válido
+                            // A veces al guardar en IDB y recuperar, puede perderse el prototipo si no se clona bien
+                            // Pero con 'readwrite' transaction suele estar bien. 
+                            // Si falla uploadBytes, podría ser por esto.
                             
                             // 1. Subir archivo
                             const snapshot = await uploadBytes(storageReference, item.file, { contentType: item.file.type });
@@ -523,21 +536,43 @@
                                     // Pequeño delay para asegurar propagación
                                     setTimeout(() => abrirGaleria(docIdActual), 500);
                                 }
+                            } else {
+                                console.warn("Documento de cámara no encontrado, eliminando subida huérfana.");
                             }
 
-                            // 4. Eliminar de IDB si éxito
+                            // 4. Eliminar de IDB si éxito (o si el doc no existe, para limpiar cola)
                             const txDel = (await initDB()).transaction("uploads", "readwrite");
-                            txDel.objectStore("uploads").delete(item.id);
+                            const storeDel = txDel.objectStore("uploads");
+                            storeDel.delete(item.id);
+                            
+                            // Esperar a que la eliminación se complete
+                            await new Promise((resolveDel, rejectDel) => {
+                                txDel.oncomplete = resolveDel;
+                                txDel.onerror = rejectDel;
+                            });
+
+                            successCount++;
 
                         } catch (err) {
                             console.error("Error sincronizando item:", item, err);
+                            failCount++;
+                            // Mostrar error específico en pantalla
+                            if (feedback) {
+                                feedback.textContent = `❌ Error en ${item.fileName}: ${err.message}`;
+                                feedback.style.color = "#e74c3c";
+                            }
                         }
                     }
 
                     if (feedback) {
-                        feedback.textContent = "✅ Sincronización completada";
-                        feedback.style.color = "#2ecc71";
-                        setTimeout(() => feedback.textContent = "", 3000);
+                        if (failCount === 0) {
+                            feedback.textContent = `✅ Sincronización completada (${successCount} subidas)`;
+                            feedback.style.color = "#2ecc71";
+                            setTimeout(() => feedback.textContent = "", 4000);
+                        } else {
+                            feedback.textContent = `⚠️ Finalizado: ${successCount} éxitos, ${failCount} fallos. Revisa conexión.`;
+                            feedback.style.color = "#f39c12";
+                        }
                     }
                 };
             } catch (e) {
