@@ -216,7 +216,7 @@
             });
         };
 
-        window.abrirGaleria = (docId) => {
+        window.abrirGaleria = async (docId) => {
             if (!docId) return;
             docIdActual = docId; // Aseguramos que se guarde el ID del documento
             const actual = allData.find(d => d.docId === docId) || {};
@@ -225,8 +225,47 @@
             const arr = Array.isArray(actual.imagenes) ? actual.imagenes : [];
             
             // Obtener la última imagen de cada tipo
-            const imagenInicial = arr.filter(item => item.nombre && item.nombre.includes('INICIAL')).pop();
-            const imagenFinal = arr.filter(item => item.nombre && item.nombre.includes('FINAL')).pop();
+            let imagenInicial = arr.filter(item => item.nombre && item.nombre.includes('INICIAL')).pop();
+            let imagenFinal = arr.filter(item => item.nombre && item.nombre.includes('FINAL')).pop();
+
+            // --- REVISAR COLA OFFLINE ---
+            try {
+                const idb = await initDB();
+                const tx = idb.transaction("uploads", "readonly");
+                const store = tx.objectStore("uploads");
+                const items = await new Promise((resolve) => {
+                    const req = store.getAll();
+                    req.onsuccess = () => resolve(req.result);
+                });
+
+                // Buscar pendientes para este documento
+                const pendientes = items.filter(item => item.docId === docId);
+                const pendienteInicial = pendientes.filter(item => item.tipo === 'INICIAL').pop();
+                const pendienteFinal = pendientes.filter(item => item.tipo === 'FINAL').pop();
+
+                if (pendienteInicial) {
+                    // Crear objeto temporal para visualización
+                    const url = URL.createObjectURL(pendienteInicial.file);
+                    imagenInicial = {
+                        url: url,
+                        nombre: pendienteInicial.fileName,
+                        esPendiente: true // Marcador especial
+                    };
+                }
+                
+                if (pendienteFinal) {
+                     // Crear objeto temporal para visualización
+                    const url = URL.createObjectURL(pendienteFinal.file);
+                    imagenFinal = {
+                        url: url,
+                        nombre: pendienteFinal.fileName,
+                        esPendiente: true // Marcador especial
+                    };
+                }
+            } catch (e) {
+                console.log("Error leyendo cola offline:", e);
+            }
+            // ----------------------------
             
             // Actualizar recuadro ID_INICIAL
             const boxInicial = document.getElementById("box-inicial");
@@ -236,24 +275,38 @@
             if (!boxInicial || !contentInicial) return;
             
             if (imagenInicial) {
+                const bordeColor = imagenInicial.esPendiente ? '#f39c12' : '#27ae60';
+                const estadoTexto = imagenInicial.esPendiente ? 
+                    '<div style="position:absolute; bottom:0; left:0; right:0; background:rgba(243, 156, 18, 0.9); color:white; font-size:12px; padding:4px; text-align:center; font-weight:bold;">⏳ PENDIENTE DE SUBIR</div>' : '';
+                
                 contentInicial.innerHTML = `
-                    <img src="${imagenInicial.url}" style="width:100%; height:100%; border-radius:4px; object-fit:cover; border:2px solid #27ae60;">
+                    <div style="position:relative; width:100%; height:100%;">
+                        <img src="${imagenInicial.url}" style="width:100%; height:100%; border-radius:4px; object-fit:cover; border:2px solid ${bordeColor};">
+                        ${estadoTexto}
+                    </div>
                 `;
                 
                 // Mostrar botón de eliminar fuera del recuadro y actualizar nombre con extensión
                 const deleteBtnInicial = document.getElementById("delete-btn-inicial");
                 const nombreTextInicial = document.querySelector("#nombre-container-inicial > div");
                 if (deleteBtnInicial && nombreTextInicial) {
-                    deleteBtnInicial.style.display = "flex";
-                    deleteBtnInicial.onclick = (e) => {
-                        e.stopPropagation();
-                        eliminarEvidencia(imagenInicial.nombre);
-                    };
+                    // Si es pendiente, ocultar botón eliminar (o manejarlo diferente si se quisiera cancelar)
+                    // Por seguridad, ocultamos eliminar en pendientes por ahora
+                    deleteBtnInicial.style.display = imagenInicial.esPendiente ? "none" : "flex"; 
+                    
+                    if (!imagenInicial.esPendiente) {
+                         deleteBtnInicial.onclick = (e) => {
+                            e.stopPropagation();
+                            eliminarEvidencia(imagenInicial.nombre);
+                        };
+                    }
+
                     // Mostrar extensión de la imagen con ID real
                     const extension = imagenInicial.nombre.split('.').pop().toLowerCase();
                     nombreTextInicial.textContent = `ID${docIdActual}_INICIAL.${extension}`;
+                    if (imagenInicial.esPendiente) nombreTextInicial.textContent += " (En cola)";
                 }
-                boxInicial.style.border = "2px solid #27ae60";
+                boxInicial.style.border = `2px solid ${bordeColor}`;
                 boxInicial.style.background = "#34495e";
             } else {
                 contentInicial.innerHTML = `
@@ -278,24 +331,36 @@
             if (!boxFinal || !contentFinal) return;
             
             if (imagenFinal) {
+                const bordeColor = imagenFinal.esPendiente ? '#f39c12' : '#8e44ad';
+                const estadoTexto = imagenFinal.esPendiente ? 
+                    '<div style="position:absolute; bottom:0; left:0; right:0; background:rgba(243, 156, 18, 0.9); color:white; font-size:12px; padding:4px; text-align:center; font-weight:bold;">⏳ PENDIENTE DE SUBIR</div>' : '';
+
                 contentFinal.innerHTML = `
-                    <img src="${imagenFinal.url}" style="width:100%; height:100%; border-radius:4px; object-fit:cover; border:2px solid #8e44ad;">
+                    <div style="position:relative; width:100%; height:100%;">
+                        <img src="${imagenFinal.url}" style="width:100%; height:100%; border-radius:4px; object-fit:cover; border:2px solid ${bordeColor};">
+                        ${estadoTexto}
+                    </div>
                 `;
                 
                 // Mostrar botón de eliminar fuera del recuadro y actualizar nombre con extensión
                 const deleteBtnFinal = document.getElementById("delete-btn-final");
                 const nombreTextFinal = document.querySelector("#nombre-container-final > div");
                 if (deleteBtnFinal && nombreTextFinal) {
-                    deleteBtnFinal.style.display = "flex";
-                    deleteBtnFinal.onclick = (e) => {
-                        e.stopPropagation();
-                        eliminarEvidencia(imagenFinal.nombre);
-                    };
+                     // Si es pendiente, ocultar botón eliminar
+                    deleteBtnFinal.style.display = imagenFinal.esPendiente ? "none" : "flex";
+                    
+                    if (!imagenFinal.esPendiente) {
+                        deleteBtnFinal.onclick = (e) => {
+                            e.stopPropagation();
+                            eliminarEvidencia(imagenFinal.nombre);
+                        };
+                    }
                     // Mostrar extensión de la imagen con ID real
                     const extension = imagenFinal.nombre.split('.').pop().toLowerCase();
                     nombreTextFinal.textContent = `ID${docIdActual}_FINAL.${extension}`;
+                    if (imagenFinal.esPendiente) nombreTextFinal.textContent += " (En cola)";
                 }
-                boxFinal.style.border = "2px solid #8e44ad";
+                boxFinal.style.border = `2px solid ${bordeColor}`;
                 boxFinal.style.background = "#34495e";
             } else {
                 contentFinal.innerHTML = `
@@ -670,6 +735,10 @@
                         setTimeout(() => galeriaFeedback.textContent = "", 5000);
                     }
                     e.target.value = "";
+                    
+                    // Actualizar la galería visualmente para mostrar la imagen "Pendiente"
+                    setTimeout(() => abrirGaleria(currentDocId), 100);
+
                     return; // Detener ejecución aquí
                 }
                 // --- FIN MODO OFFLINE ---
