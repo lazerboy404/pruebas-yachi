@@ -122,7 +122,11 @@
 
     <script>
         let deferredPrompt;
+        let installProgressInterval;
         const installBtn = document.getElementById('install-btn');
+        const modal = document.getElementById('install-modal');
+        const bar = document.getElementById('install-progress');
+        const text = document.getElementById('install-text');
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -137,33 +141,30 @@
                         
                         if (outcome === 'accepted') {
                             installBtn.style.display = 'none';
-                            const modal = document.getElementById('install-modal');
-                            const bar = document.getElementById('install-progress');
-                            const text = document.getElementById('install-text');
                             
                             if (modal) {
                                 modal.style.display = 'flex';
                                 let width = 0;
-                                const interval = setInterval(() => {
-                                    width += 2; // Slower progress
-                                    if (width > 100) width = 100;
-                                    
-                                    bar.style.width = width + '%';
-                                    
-                                    if (width < 30) text.textContent = "Preparando entorno...";
-                                    else if (width < 60) text.textContent = "Descargando recursos...";
-                                    else if (width < 90) text.textContent = "Configurando modo offline...";
-                                    else text.textContent = "Finalizando instalación...";
-                                    
-                                    if (width >= 100) {
-                                        clearInterval(interval);
-                                        text.textContent = "¡Instalación completada!";
-                                        text.style.color = "#27ae60";
-                                        setTimeout(() => {
-                                            modal.style.display = 'none';
-                                        }, 1500);
+                                
+                                // Resetear estado visual
+                                if (bar) bar.style.width = '0%';
+                                if (text) {
+                                    text.textContent = "Preparando entorno...";
+                                    text.style.color = "#7f8c8d";
+                                }
+
+                                // Simular progreso lento hasta 85% mientras se espera el evento real
+                                clearInterval(installProgressInterval);
+                                installProgressInterval = setInterval(() => {
+                                    if (width < 85) {
+                                        width += 0.5; 
+                                        bar.style.width = width + '%';
+                                        
+                                        if (width < 30) text.textContent = "Preparando entorno...";
+                                        else if (width < 60) text.textContent = "Descargando recursos...";
+                                        else text.textContent = "Finalizando instalación en el dispositivo...";
                                     }
-                                }, 50); // 50ms * 50 steps = 2.5 seconds
+                                }, 100); 
                             }
                         }
                         deferredPrompt = null;
@@ -176,6 +177,19 @@
             if (installBtn) installBtn.style.display = 'none';
             deferredPrompt = null;
             console.log('PWA was installed');
+            
+            // Sincronizar con evento real de finalización
+            if (modal && modal.style.display === 'flex') {
+                clearInterval(installProgressInterval);
+                if (bar) bar.style.width = '100%';
+                if (text) {
+                    text.textContent = "¡Instalación completada!";
+                    text.style.color = "#27ae60";
+                }
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 2000);
+            }
         });
     </script>
     <script type="module">
