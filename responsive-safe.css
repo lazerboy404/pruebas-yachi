@@ -109,27 +109,35 @@ Solo agrega responsividad SIN afectar estilos existentes
     /* Recuadros de evidencias - Móviles */
     #box-inicial,
     #box-final {
-        width: 120px !important;
-        height: 120px !important;
-        padding: 10px !important;
+        width: 160px !important;
+        height: 160px !important;
+        padding: 15px !important;
+        border-radius: 10px !important;
     }
     
     /* Iconos en recuadros */
     #box-inicial .fa-camera,
     #box-final .fa-camera {
-        font-size: 1.8em !important;
-        margin-bottom: 6px !important;
+        font-size: 2.2em !important;
+        margin-bottom: 8px !important;
     }
     
     /* Texto en recuadros */
     #box-inicial > div > div:first-child,
     #box-final > div > div:first-child {
-        font-size: 0.9em !important;
+        font-size: 1.1em !important;
+        margin-bottom: 4px !important;
     }
     
     #box-inicial > div > div:last-child,
     #box-final > div > div:last-child {
-        font-size: 0.7em !important;
+        font-size: 0.8em !important;
+    }
+    
+    /* Contenedor flexible para móviles */
+    .evidencias-container {
+        flex-direction: column !important;
+        gap: 25px !important;
     }
     
     /* Grid de galería */
@@ -157,28 +165,35 @@ Solo agrega responsividad SIN afectar estilos existentes
     /* Recuadros de evidencias - Móviles pequeños */
     #box-inicial,
     #box-final {
-        width: 100px !important;
-        height: 100px !important;
-        padding: 8px !important;
+        width: 140px !important;
+        height: 140px !important;
+        padding: 12px !important;
+        border-radius: 8px !important;
     }
     
     /* Iconos más grandes */
     #box-inicial .fa-camera,
     #box-final .fa-camera {
-        font-size: 2em !important;
-        margin-bottom: 4px !important;
+        font-size: 2.5em !important;
+        margin-bottom: 6px !important;
     }
     
     /* Texto más compacto */
     #box-inicial > div > div:first-child,
     #box-final > div > div:first-child {
-        font-size: 0.8em !important;
+        font-size: 1em !important;
+        margin-bottom: 3px !important;
     }
     
     #box-inicial > div > div:last-child,
     #box-final > div > div:last-child {
-        font-size: 0.6em !important;
-        margin-top: 2px !important;
+        font-size: 0.75em !important;
+        margin-top: 3px !important;
+    }
+    
+    /* Contenedor más compacto */
+    .evidencias-container {
+        gap: 20px !important;
     }
     
     /* Grid más compacto */

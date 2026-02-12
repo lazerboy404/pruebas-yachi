@@ -383,3 +383,180 @@ th {
     .hidden-tablet { display: block; }
     .hidden-desktop { display: none; }
 }
+
+/* Estilos responsivos para cuadritos KPI en index.html */
+@media (max-width: 768px) {
+    .kpi-summary {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .kpi-card {
+        min-width: unset !important;
+        width: 100% !important;
+        margin: 0 !important;
+        text-align: center !important;
+        padding: 12px !important;
+    }
+    
+    .kpi-card h3 {
+        font-size: 14px !important;
+        margin-bottom: 5px !important;
+    }
+    
+    .kpi-card p {
+        font-size: 18px !important;
+        font-weight: bold !important;
+        margin: 0 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .kpi-summary {
+        gap: 8px !important;
+    }
+    
+    .kpi-card {
+        padding: 10px !important;
+    }
+    
+    .kpi-card h3 {
+        font-size: 12px !important;
+    }
+    
+    .kpi-card p {
+        font-size: 16px !important;
+    }
+}
+
+/* PRUEBA: Verificar carga de CSS */
+body {
+    border: 5px solid green !important;
+}
+
+/* Estilos para el modal de imágenes */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal-container {
+    background: #2c3e50;
+    border: 1px solid #34495e;
+    padding: 15px;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modal-title {
+    margin: 0 0 10px 0;
+    color: #3498db;
+    text-align: center;
+    font-size: 18px;
+}
+
+.imagen-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 2px;
+    width: 100%;
+    padding: 5px;
+    justify-items: center;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+    gap: 8px;
+    width: 100%;
+}
+
+.modal-close-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* Estilos responsivos para modal de imágenes en gestion.html */
+@media (max-width: 768px) {
+    .modal-overlay {
+        align-items: flex-start !important;
+        padding-top: 20px !important;
+        padding-bottom: 20px !important;
+    }
+    
+    .imagen-modal-content {
+        max-width: 95% !important;
+        width: 95% !important;
+        max-height: 90vh !important;
+        height: 80vh !important;
+        border-radius: 20px !important;
+        padding: 25px 20px !important;
+        margin: 0 !important;
+        background: #000000 !important;
+        border: 2px solid #ff0000 !important;
+    }
+    
+    .imagen-grid-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 15px !important;
+        max-height: 65vh !important;
+        overflow-y: auto !important;
+        padding: 15px !important;
+        margin: 0 !important;
+    }
+    
+    .modal-title {
+        font-size: 18px !important;
+        margin-bottom: 20px !important;
+        margin-top: 0 !important;
+    }
+    
+    .modal-close-btn {
+        padding: 10px 20px !important;
+        font-size: 14px !important;
+        margin-top: 15px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #imagen-modal > div {
+        max-width: 98% !important;
+        width: 98% !important;
+        max-height: 95vh !important;
+        height: 85vh !important;
+        border-radius: 24px !important;
+        padding: 30px 15px !important;
+    }
+    
+    #imagen-grid {
+        grid-template-columns: repeat(1, 1fr) !important;
+        gap: 20px !important;
+        max-height: 70vh !important;
+    }
+    
+    #imagen-modal h3 {
+        font-size: 20px !important;
+        margin-bottom: 25px !important;
+    }
+    
+    #imagen-modal > div[style] {
+        max-width: 98% !important;
+        width: 98% !important;
+        max-height: 95vh !important;
+        height: 85vh !important;
+        border-radius: 24px !important;
+        padding: 30px 15px !important;
+    }
+}
