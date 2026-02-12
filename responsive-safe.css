@@ -96,6 +96,108 @@ Solo agrega responsividad SIN afectar estilos existentes
     .hide-mobile {
         display: none !important;
     }
+    
+    /* Modal de evidencias - Móviles */
+    #galeria-modal > div {
+        width: 95% !important;
+        max-width: none !important;
+        margin: 10px !important;
+        padding: 12px !important;
+        max-height: 90vh !important;
+    }
+    
+    /* Recuadros de evidencias - Móviles */
+    #box-inicial,
+    #box-final {
+        width: 120px !important;
+        height: 120px !important;
+        padding: 10px !important;
+    }
+    
+    /* Iconos en recuadros */
+    #box-inicial .fa-camera,
+    #box-final .fa-camera {
+        font-size: 1.8em !important;
+        margin-bottom: 6px !important;
+    }
+    
+    /* Texto en recuadros */
+    #box-inicial > div > div:first-child,
+    #box-final > div > div:first-child {
+        font-size: 0.9em !important;
+    }
+    
+    #box-inicial > div > div:last-child,
+    #box-final > div > div:last-child {
+        font-size: 0.7em !important;
+    }
+    
+    /* Grid de galería */
+    #galeria-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+        gap: 8px !important;
+    }
+    
+    /* Botones en modal */
+    #galeria-modal button {
+        padding: 8px 16px !important;
+        font-size: 14px !important;
+    }
+}
+
+/* Móviles muy pequeños (≤360px) */
+@media (max-width: 360px) {
+    /* Modal de evidencias - Móviles pequeños */
+    #galeria-modal > div {
+        width: 98% !important;
+        margin: 5px !important;
+        padding: 8px !important;
+    }
+    
+    /* Recuadros de evidencias - Móviles pequeños */
+    #box-inicial,
+    #box-final {
+        width: 100px !important;
+        height: 100px !important;
+        padding: 8px !important;
+    }
+    
+    /* Iconos más grandes */
+    #box-inicial .fa-camera,
+    #box-final .fa-camera {
+        font-size: 2em !important;
+        margin-bottom: 4px !important;
+    }
+    
+    /* Texto más compacto */
+    #box-inicial > div > div:first-child,
+    #box-final > div > div:first-child {
+        font-size: 0.8em !important;
+    }
+    
+    #box-inicial > div > div:last-child,
+    #box-final > div > div:last-child {
+        font-size: 0.6em !important;
+        margin-top: 2px !important;
+    }
+    
+    /* Grid más compacto */
+    #galeria-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)) !important;
+        gap: 6px !important;
+    }
+    
+    /* Título del modal */
+    #galeria-modal h3 {
+        font-size: 1.1em !important;
+        margin-bottom: 12px !important;
+    }
+    
+    /* Flex container para recuadros */
+    #galeria-modal > div > div:first-child {
+        gap: 15px !important;
+        margin-bottom: 12px !important;
+    }
 }
 
 /* =========================================
