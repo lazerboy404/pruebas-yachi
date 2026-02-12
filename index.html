@@ -115,6 +115,7 @@
     <script>
         let deferredPrompt;
         let installProgressInterval;
+        let appInstalled = false;
         const installBtn = document.getElementById('install-btn');
         const modal = document.getElementById('install-modal');
         const bar = document.getElementById('install-progress');
@@ -137,6 +138,7 @@
                             if (modal) {
                                 modal.style.display = 'flex';
                                 let width = 0;
+                                appInstalled = false;
                                 
                                 // Resetear estado visual
                                 if (bar) bar.style.width = '0%';
@@ -145,21 +147,34 @@
                                     text.style.color = "#7f8c8d";
                                 }
 
-                                // Simular progreso lento hasta 85% mientras se espera el evento real
                                 clearInterval(installProgressInterval);
                                 installProgressInterval = setInterval(() => {
-                                    if (width < 85) {
-                                        width += 0.5; 
+                                    // Si llegamos a 95% y no se ha disparado el evento real, esperar
+                                    if (width >= 95 && !appInstalled) {
+                                        return; 
+                                    }
+                                    
+                                    // Avanzar lento para simular carga realista (aprox 20s total)
+                                    if (width < 100) {
+                                        width += 1; 
                                         bar.style.width = width + '%';
                                         
                                         if (width < 30) text.textContent = "Preparando entorno...";
-                                        else if (width < 60) text.textContent = "Descargando recursos...";
-                                        else text.textContent = "Finalizando instalación en el dispositivo...";
+                                        else if (width < 60) text.textContent = "Descargando paquete de instalación...";
+                                        else if (width < 90) text.textContent = "Instalando en el dispositivo...";
+                                        else text.textContent = "Verificando instalación...";
+                                    } else {
+                                        // 100% alcanzado y evento confirmado
+                                        clearInterval(installProgressInterval);
+                                        text.textContent = "¡Instalación completada!";
+                                        text.style.color = "#27ae60";
+                                        setTimeout(() => {
+                                            modal.style.display = 'none';
+                                        }, 2000);
                                     }
-                                }, 100); 
+                                }, 200); // 200ms * 100 pasos = 20 segundos
                             }
                         }
-                        
                         deferredPrompt = null;
                     }
                 };
@@ -169,20 +184,9 @@
         window.addEventListener('appinstalled', () => {
             if (installBtn) installBtn.style.display = 'none';
             deferredPrompt = null;
-            console.log('PWA was installed');
-            
-            // Sincronizar con evento real de finalización
-            if (modal && modal.style.display === 'flex') {
-                clearInterval(installProgressInterval);
-                if (bar) bar.style.width = '100%';
-                if (text) {
-                    text.textContent = "¡Instalación completada!";
-                    text.style.color = "#27ae60";
-                }
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                }, 2000);
-            }
+            console.log('PWA was installed event fired');
+            appInstalled = true;
+            // No forzamos cierre inmediato, dejamos que la barra termine su recorrido natural
         });
     </script>
 
