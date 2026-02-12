@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gestion-camaras-v4';
+const CACHE_NAME = 'gestion-camaras-v5';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -42,6 +42,34 @@ self.addEventListener('fetch', (event) => {
 
   // Ignorar peticiones que no sean GET
   if (event.request.method !== 'GET') return;
+
+  // Estrategia Cache First para imágenes de Firebase Storage
+  if (url.hostname.includes('firebasestorage.googleapis.com')) {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        if (response) {
+          return response;
+        }
+        return fetch(event.request).then((networkResponse) => {
+          // Cachear respuesta válida (status 200 y tipo cors/basic)
+          if (!networkResponse || networkResponse.status !== 200 || (networkResponse.type !== 'basic' && networkResponse.type !== 'cors')) {
+            return networkResponse;
+          }
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+          return networkResponse;
+        }).catch(() => {
+            // Si falla la red y no está en caché, no podemos hacer mucho para imágenes nuevas,
+            // pero si es una imagen que ya estaba, el match inicial la habría devuelto.
+            // Podríamos devolver una imagen placeholder aquí si quisiéramos.
+            return new Response('Offline', { status: 503, statusText: 'Offline' });
+        });
+      })
+    );
+    return;
+  }
 
   // Estrategia Cache First para archivos estáticos y fuentes
   if (

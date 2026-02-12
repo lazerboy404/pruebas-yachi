@@ -228,6 +228,9 @@
         <div style="flex: 1;"></div>
         <h1 style="flex: 2; text-align: center;">🔧 CENTRO DE GESTIÓN</h1>
         <div style="flex: 1; display: flex; justify-content: flex-end; gap: 20px; align-items: center; padding-right: 40px;">
+            <button id="install-btn" style="display:none; background: #2ecc71; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s;">
+                <i class="fa-solid fa-download"></i> Instalar App
+            </button>
             <a href="index.html" title="Volver al Dashboard" style="color: #3498db; text-decoration: none; font-size: 22px;">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
@@ -403,6 +406,33 @@
         </div>
     </div>
 
+    <script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installBtn) {
+                installBtn.style.display = 'block';
+                installBtn.onclick = async () => {
+                    if (deferredPrompt) {
+                        installBtn.style.display = 'none';
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        console.log(`User response to the install prompt: ${outcome}`);
+                        deferredPrompt = null;
+                    }
+                };
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            if (installBtn) installBtn.style.display = 'none';
+            deferredPrompt = null;
+            console.log('PWA was installed');
+        });
+    </script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
         import { getFirestore, collection, onSnapshot, doc, updateDoc, getDocs, deleteField, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
