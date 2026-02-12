@@ -126,11 +126,19 @@
         const db = getFirestore(app);
         
         // Habilitar persistencia offline inmediatamente después de inicializar db
-        enableIndexedDbPersistence(db).catch((err) => {
-            if (err.code == 'failed-precondition') {
-                console.warn('Persistencia fallida: Múltiples pestañas abiertas.');
-            } else if (err.code == 'unimplemented') {
-                console.warn('Persistencia no soportada por el navegador.');
+        enableIndexedDbPersistence(db).then(() => {
+            console.log("Persistencia offline habilitada");
+        }).catch((err) => {
+            console.error("Error persistencia:", err);
+            const feedback = document.getElementById("evid-feedback");
+            if (feedback) {
+                if (err.code == 'failed-precondition') {
+                    feedback.textContent = '⚠️ Modo offline no disponible: Cierre otras pestañas.';
+                    feedback.style.color = '#e67e22';
+                } else if (err.code == 'unimplemented') {
+                    feedback.textContent = '⚠️ Modo offline no soportado por este navegador.';
+                    feedback.style.color = '#e67e22';
+                }
             }
         });
 
@@ -143,12 +151,36 @@
         let docIdActual = null;
         let tipoCargaActual = null;
 
+        // Diagnóstico inicial
+        if (feedback) {
+            feedback.textContent = "⏳ Conectando con base de datos...";
+            feedback.style.color = "#f39c12";
+        }
+
         onSnapshot(camarasRef, (snapshot) => {
+            if (snapshot.empty) {
+                console.log("No hay documentos en la colección 'camaras'.");
+                if (feedback) {
+                    feedback.textContent = "⚠️ Conectado, pero no hay cámaras registradas.";
+                    feedback.style.color = "#e67e22";
+                }
+            } else {
+                if (feedback && feedback.textContent.includes("Conectando")) {
+                    feedback.textContent = ""; // Limpiar mensaje de carga si hay éxito
+                }
+            }
+
             allData = snapshot.docs.map(doc => ({
                 ...doc.data(),
                 docId: doc.id
             }));
             renderTabla();
+        }, (error) => {
+            console.error("Error fatal en onSnapshot:", error);
+            if (feedback) {
+                feedback.innerHTML = `❌ <b>Error de conexión:</b> ${error.message}<br><small>Verifica tu conexión o intenta recargar.</small>`;
+                feedback.style.color = "#c0392b";
+            }
         });
 
         const renderTabla = () => {
