@@ -187,7 +187,24 @@
             feedback.style.color = "#f39c12";
         }
 
-        onSnapshot(camarasRef, (snapshot) => {
+        // Helper para obtener cargas pendientes
+        const getPendingUploads = async () => {
+            try {
+                const idb = await initDB();
+                const tx = idb.transaction("uploads", "readonly");
+                const store = tx.objectStore("uploads");
+                const items = await new Promise((resolve) => {
+                    const req = store.getAll();
+                    req.onsuccess = () => resolve(req.result);
+                });
+                return items || [];
+            } catch (e) {
+                console.log("Error obteniendo pendientes:", e);
+                return [];
+            }
+        };
+
+        onSnapshot(camarasRef, async (snapshot) => {
             if (snapshot.empty) {
                 console.log("No hay documentos en la colección 'camaras'.");
                 if (feedback) {
@@ -204,7 +221,9 @@
                 ...doc.data(),
                 docId: doc.id
             }));
-            renderTabla();
+            
+            const pendingItems = await getPendingUploads();
+            renderTabla(pendingItems);
         }, (error) => {
             console.error("Error fatal en onSnapshot:", error);
             if (feedback) {
@@ -213,7 +232,7 @@
             }
         });
 
-        const renderTabla = () => {
+        const renderTabla = (pendingItems = []) => {
             tableBody.innerHTML = "";
             
             // Ordenar los datos por ID de cámara de menor a mayor
@@ -228,8 +247,28 @@
                 row.insertCell(0).textContent = cam.idCamara || "---";
                 row.insertCell(1).textContent = cam.modelo || "---";
                 row.insertCell(2).textContent = cam.estado || "Pendiente";
-                const evidenciasCount = Array.isArray(cam.imagenes) ? cam.imagenes.length : 0;
-                row.insertCell(3).textContent = evidenciasCount;
+                
+                const imagenesServer = Array.isArray(cam.imagenes) ? cam.imagenes : [];
+                
+                // Filtrar pendientes que no estén ya en el servidor (por nombre) para evitar duplicados visuales durante sincronización
+                const pendientesCamara = pendingItems.filter(p => 
+                    p.docId === cam.docId && 
+                    !imagenesServer.some(s => s.nombre === p.fileName)
+                );
+                
+                const countServer = imagenesServer.length;
+                const countPending = pendientesCamara.length;
+                const totalCount = countServer + countPending;
+                
+                const cellEvidencias = row.insertCell(3);
+                cellEvidencias.textContent = totalCount;
+                
+                // Si hay pendientes reales, mostrar en naranja
+                if (countPending > 0) {
+                    cellEvidencias.style.color = "#e67e22"; // Naranja
+                    cellEvidencias.style.fontWeight = "bold";
+                    cellEvidencias.title = `${countPending} pendiente(s) de subir`;
+                }
                 
                 const acciones = row.insertCell(4);
                 acciones.style.display = "flex";
@@ -696,6 +735,10 @@
                         }
                     }
 
+                    // Actualizar tabla para reflejar cambios en pendientes (quitar naranja si éxito)
+                    const pendingItems = await getPendingUploads();
+                    renderTabla(pendingItems);
+
                     if (feedback) {
                         if (failCount === 0) {
                             feedback.textContent = `✅ Sincronización completada (${successCount} subidas)`;
@@ -768,6 +811,10 @@
                     
                     // Actualizar la galería visualmente para mostrar la imagen "Pendiente"
                     setTimeout(() => abrirGaleria(currentDocId), 100);
+
+                    // Actualizar tabla principal para mostrar contador naranja
+                    const pendingItems = await getPendingUploads();
+                    renderTabla(pendingItems);
 
                     return; // Detener ejecución aquí
                 }
