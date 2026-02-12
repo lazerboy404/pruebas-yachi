@@ -2,11 +2,18 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Cámaras</title>
     <link rel="stylesheet" href="styles.css?v=10">
-    <link rel="stylesheet" href="responsive.css?v=10">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        table {
+            font-family: 'Roboto', sans-serif;
+        }
 
         
         /* Aseguramos que el botón tech tenga un estilo base consistente */
@@ -17,14 +24,181 @@
             padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 13px;
         }
         .btn-tech:hover {
-            background: rgba(52, 152, 219, 0.1);
-            transform: scale(1.05);
+            background: #3498db;
+            color: white;
+        }
+
+        /* ===== ESTILOS RESPONSIVOS DESDE CERO ===== */
+        
+        
+        /* 1. TABLA PRINCIPAL - Versión móvil */
+        @media (max-width: 768px) {
+            /* Header más compacto */
+            header {
+                padding: 12px 15px !important;
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+            
+            header h1 {
+                font-size: 1.4em !important;
+                margin: 0 !important;
+            }
+            
+            /* Formulario de búsqueda y filtros */
+            .search-filters {
+                flex-direction: column !important;
+                gap: 10px !important;
+                padding: 15px !important;
+            }
+            
+            .search-filters input,
+            .search-filters select {
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+            }
+            
+            /* Tabla responsiva */
+            .table-container {
+                overflow-x: auto !important;
+                margin: 0 10px !important;
+            }
+            
+            table {
+                min-width: 600px !important;
+                font-size: 13px !important;
+            }
+            
+            th, td {
+                padding: 8px 6px !important;
+            }
+            
+            /* Botones de acción más grandes */
+            .btn-action {
+                padding: 8px 12px !important;
+                font-size: 12px !important;
+                margin: 2px !important;
+            }
+            
+            /* Formulario de edición */
+            #camera-form {
+                width: 95% !important;
+                margin: 10px auto !important;
+                padding: 15px !important;
+            }
+            
+            #camera-form input,
+            #camera-form select,
+            #camera-form textarea {
+                font-size: 16px !important; /* Mejor para móviles */
+                padding: 10px !important;
+            }
+            
+            /* Modal de imágenes - EXTRA GRANDE en móvil */
+            #imagen-modal > div {
+                max-width: 98% !important;
+                width: 98% !important;
+                max-height: 92vh !important;
+                min-height: 300px !important;
+                padding: 25px 20px !important;
+                border-radius: 16px !important;
+                margin: 10px auto !important;
+            }
+            
+            #imagen-modal h3 {
+                font-size: 22px !important;
+                margin-bottom: 20px !important;
+            }
+            
+            #imagen-modal img {
+                width: 200px !important;
+                height: 150px !important;
+                border-radius: 10px !important;
+            }
+            
+            #imagen-modal .btn-tech {
+                padding: 14px 28px !important;
+                font-size: 17px !important;
+                margin-top: 20px !important;
+            }
+            
+            #imagen-grid {
+                gap: 18px !important;
+                padding: 12px !important;
+                justify-content: space-around !important;
+            }
+            
+            /* Texto de imagen más grande */
+            #imagen-modal div[style*="font-size: 12px"] {
+                font-size: 14px !important;
+                margin-top: 6px !important;
+            }
+        }
+        
+        /* 2. TABLA PRINCIPAL - Versión tablet */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .table-container {
+                margin: 0 15px !important;
+            }
+            
+            table {
+                font-size: 14px !important;
+            }
+            
+            th, td {
+                padding: 10px 8px !important;
+            }
+        }
+        
+        /* 3. MEJORAS ESPECÍFICAS PARA MÓVIL MUY PEQUEÑO */
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.2em !important;
+            }
+            
+            .search-filters {
+                padding: 10px !important;
+            }
+            
+            /* Modal aún más grande */
+            #imagen-modal > div {
+                padding: 20px 15px !important;
+            }
+            
+            #imagen-modal img {
+                width: 180px !important;
+                height: 135px !important;
+            }
+            
+            #imagen-grid {
+                gap: 15px !important;
+            }
+        }
+        
+        /* 4. UTILIDADES RESPONSIVAS */
+        .mobile-hidden {
+            display: none !important;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-hidden {
+                display: none !important;
+            }
+            
+            .mobile-only {
+                display: block !important;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-only {
+                display: none !important;
+            }
         }
         /* Clase para el formulario visible si no la tienes en tu CSS */
         #camera-form-content {
@@ -37,14 +211,15 @@
 </head>
 <body>
 
-    <header>
-        <h1>🔧 CENTRO DE GESTIÓN</h1>
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <a href="index.html" style="color: #3498db; text-decoration: none; font-weight: bold;">
-                <i class="fa-solid fa-arrow-left"></i> Volver al Dashboard
+    <header style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="flex: 1;"></div>
+        <h1 style="flex: 2; text-align: center;">🔧 CENTRO DE GESTIÓN</h1>
+        <div style="flex: 1; display: flex; justify-content: flex-end; gap: 20px; align-items: center; padding-right: 40px;">
+            <a href="index.html" title="Volver al Dashboard" style="color: #3498db; text-decoration: none; font-size: 22px;">
+                <i class="fa-solid fa-arrow-left"></i>
             </a>
-            <a href="evidencias.html" style="color: #8e44ad; text-decoration: none; font-weight: bold;">
-                <i class="fa-solid fa-camera"></i> Ir a Evidencias
+            <a href="evidencias.html" title="Ir a Evidencias" style="color: #3498db; text-decoration: none; font-size: 22px;">
+                <i class="fa-solid fa-camera"></i>
             </a>
         </div>
     </header>
@@ -359,7 +534,6 @@
                         badge.style.minWidth = "16px";
                         badge.style.display = "inline-block";
                         badge.style.textAlign = "center";
-                        actionCell.style.position = "relative";
                         btnNota.appendChild(badge);
                     }
                     btnNota.onclick = () => verObservaciones(camara);
@@ -377,13 +551,16 @@
                 btnEdit.onclick = () => iniciarComentario(camara.docId, camara);
                 actionCell.appendChild(btnEdit);
 
+                const tieneEvidencia = camara.evidenciaInicial || camara.evidenciaFinal;
+
                 const btnCam = document.createElement('button');
-                btnCam.innerHTML = '<i class="fa-solid fa-camera"></i>';
-                btnCam.className = "btn-tech";
+                btnCam.innerHTML = `<i class="fa-solid fa-camera"></i>`;
+                btnCam.className = "btn-tech btn-action";
                 btnCam.style.borderColor = "#9b59b6";
                 btnCam.style.color = "#9b59b6";
                 btnCam.title = "Evidencias";
                 btnCam.style.position = "relative";
+
                 const imgCount = Array.isArray(camara.imagenes) ? camara.imagenes.length : 0;
                 if (imgCount > 0) {
                     const badge = document.createElement('span');
@@ -392,7 +569,7 @@
                     badge.style.top = "-8px";
                     badge.style.left = "50%";
                     badge.style.transform = "translateX(-50%)";
-                    badge.style.background = "#3498db";
+                    badge.style.background = "#2ecc71"; // Siempre verde
                     badge.style.color = "#ffffff";
                     badge.style.borderRadius = "10px";
                     badge.style.padding = "0 6px";
