@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Actualizador </title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; color: white; padding: 20px; }
+        textarea { width: 100%; height: 200px; background: #34495e; color: white; border: 1px solid #7f8c8d; padding: 10px; font-family: monospace; font-size: 14px; }
+        
+        /* Estilos nuevos para el selector */
+        select { width: 100%; padding: 15px; font-size: 16px; margin-bottom: 10px; background: #ecf0f1; border: none; border-radius: 5px; color: #2c3e50; font-weight: bold; }
+        
+        button { background: #3498db; color: white; border: none; padding: 15px 30px; font-size: 18px; cursor: pointer; margin-top: 10px; border-radius: 5px; width: 100%; }
+        button:hover { background: #2980b9; }
+        #status { margin-top: 20px; background: #222; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: monospace; }
+        .instruction { background: #545b67; color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Importador de datos</h1>
+    
+    <!--<div class="instruction">
+        <strong>PASO 1:</strong> Selecciona qué dato vas a subir.<br>
+        <strong>PASO 2:</strong> Pega 2 columnas de Excel: <code>[ID CAMARA]</code> + <code>[DATO]</code>
+    </div>-->
+
+    <select id="campoObjetivo">
+        <option value="coordenadas">📍 Coordenadas (lat,long)</option>
+        <option value="ip">🌐 Dirección IP</option>
+        <option value="etiqueta">🏷️ Etiqueta o nombre</option>
+        <option value="modelo">💬 Modelo</option>
+        <option value="status">🟢 Estado (Operativa, Pendiente, etc)</option>
+        <option value="responsable">👤 Responsable</option>
+    </select>
+
+    <textarea id="excel-data" placeholder="Ejemplo:&#10;DOMO 1    192.168.0.50&#10;DOMO 2    192.168.0.51"></textarea>
+    <br>
+    <button onclick="procesarDatos()"> Actualizar </button>
+    <button onclick="borrarTodo()" style="background: #e74c3c; margin-top: 20px;"> 🗑️ Borrar toda la base de datos </button>
+    <div id="status">Esperando datos...</div>
+
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { 
+        getFirestore, 
+        doc, 
+        setDoc, 
+        collection, 
+        getDocs, 
+        deleteDoc 
+    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyDz17f-cSbHRgBnyDnBsSjVDfAI4mSZ_0",
+        authDomain: "pachuca-uaeh.firebaseapp.com",
+        projectId: "pachuca-uaeh",
+        storageBucket: "pachuca-uaeh.firebasestorage.app",
+        messagingSenderId: "111780147134",
+        appId: "1:111780147134:web:32634929b7427d21b1d3ef",
+        measurementId: "G-M7303H8HBM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // --- FUNCIÓN PARA ACTUALIZAR
+    window.procesarDatos = async () => {
+    const rawData = document.getElementById('excel-data').value;
+    const statusDiv = document.getElementById('status');
+    
+    // Aquí definimos el nuevo estado. 
+    // Puedes cambiar "Configurada" por lo que necesites.
+    const nuevoEstado = "Configurada"; 
+
+    if (!rawData.trim()) { alert("Pega los IDs de las cámaras primero."); return; }
+
+    const rows = rawData.trim().split('\n');
+    let successCount = 0;
+    statusDiv.innerHTML = `⏳ Actualizando solo el estado a "${nuevoEstado}"...`;
+
+    for (const row of rows) {
+        const cols = row.split('\t');
+        let idReal = cols[0] ? cols[0].trim() : ""; 
+
+        // Solo procesamos si hay un ID numérico
+        if (!idReal || isNaN(idReal)) continue;
+
+        // ALERTA TÉCNICA: Al enviar SOLO el campo 'estado' con { merge: true },
+        // Firebase actualiza ese valor y mantiene los demás (IP, modelo, etc.) sin cambios.
+        let dataToUpdate = {
+            estado: nuevoEstado,
+            fechaActualizacion: new Date()
+        };
+
+        try {
+            await setDoc(doc(db, "camaras", idReal), dataToUpdate, { merge: true });
+            successCount++;
+            statusDiv.innerHTML = `✅ ID: ${idReal} -> ${nuevoEstado}`;
+        } catch (e) {
+            console.error("Error en ID " + idReal, e);
+        }
+    }
+    statusDiv.innerHTML = `\n\n ¡ÉXITO! ${successCount} cámaras actualizadas a "${nuevoEstado}".`;
+};
+
+    //  BORRAR TODA LA BD
+    window.borrarTodo = async () => {
+        const confirmacion = confirm("¿Estás SEGURO de borrar TODO? Esta acción no se puede deshacer.");
+        if (!confirmacion) return;
+
+        const statusDiv = document.getElementById('status');
+        statusDiv.innerHTML = "⏳ Iniciando borrado total...";
+
+        try {
+            const querySnapshot = await getDocs(collection(db, "camaras"));
+            let count = 0;
+
+            const promesasDeBorrado = querySnapshot.docs.map(async (documento) => {
+                await deleteDoc(doc(db, "camaras", documento.id));
+                count++;
+                statusDiv.innerHTML = `🗑️ Borrando: ${count} documentos...`;
+            });
+
+            await Promise.all(promesasDeBorrado);
+            statusDiv.innerHTML = `✅ ÉXITO: Se han eliminado ${count} cámaras.`;
+            alert("Base de datos limpia.");
+        } catch (error) {
+            console.error(error);
+            statusDiv.innerHTML = "❌ Error al borrar. Revisa las reglas de seguridad en Firebase.";
+        }
+    };
+</script>
+</body>
+</html>

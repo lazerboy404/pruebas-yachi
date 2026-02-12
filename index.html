@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Pachuca</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://tile.openstreetmap.org">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css?v=12">
+    <link rel="stylesheet" href="responsive.css?v=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
+
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+
+        .kpi-summary {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .kpi-card {
+            min-width: 140px;
+            flex: 0 1 auto;
+            margin: 0;
+        }
+
+        #map {
+            height: 500px;
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1;
+            image-rendering: -webkit-optimize-contrast;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>DASHBOARD GENERAL</h1>
+    </header>
+
+    <main>
+        <section class="kpi-summary">
+            <div class="kpi-card">
+                <h3>Total:</h3>
+                <p id="total-cameras">0</p>
+            </div>
+
+            <div class="kpi-card success">
+                <h3>Operativas:</h3>
+                <p id="operative-count">0</p>
+            </div>
+
+            <div class="kpi-card" style="border-left: 5px solid #3498db;">
+                <h3>Configuradas:</h3>
+                <p id="configured-count">0</p>
+            </div>
+
+            <div class="kpi-card warning">
+                <h3>Pendientes:</h3>
+                <p id="pending-count">0</p>
+            </div>
+        </section>
+
+        <section style="margin-top: 20px; padding: 0 20px;">
+            <h2 style="color: #ffffff; margin-bottom: 10px;">Ubicación de Dispositivos</h2>
+            <div id="map"></div>
+        </section>
+    </main>
+
+    <a href="gestion.html" class="fab-btn" title="Ir a Gestión" style="right: 30px;">
+        <i class="fa-solid fa-list-check"></i>
+    </a>
+    
+    <a href="evidencias.html" class="fab-btn" title="Ir a Evidencias" style="right: 100px; background-color: #8e44ad;">
+        <i class="fa-solid fa-camera"></i>
+    </a>
+    
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDz17f-cSbHRgBnyDnBsSjVDfAI4mSZ_0",
+            authDomain: "pachuca-uaeh.firebaseapp.com",
+            projectId: "pachuca-uaeh",
+            storageBucket: "pachuca-uaeh.firebasestorage.app",
+            messagingSenderId: "111780147134",
+            appId: "1:111780147134:web:32634929b7427d21b1d3ef",
+            measurementId: "G-M7303H8HBM"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const camarasRef = collection(db, "camaras");
+
+        const totalEl = document.getElementById("total-cameras");
+        const operativasEl = document.getElementById("operative-count");
+        const pendientesEl = document.getElementById("pending-count");
+        const configuradasEl = document.getElementById("configured-count");
+
+        // Inicialización Mapa
+        const map = L.map('map').setView([20.128137, -98.805992], 16);
+
+        L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            maxZoom: 22,
+            attribution: '© Google Maps'
+        }).addTo(map);
+
+        // Icono personalizado
+        var cameraIcon = L.icon({
+            iconUrl: 'camara.png', 
+            iconSize:     [32, 32],
+            iconAnchor:   [16, 16],
+            popupAnchor:  [0, -10]
+        });
+
+        const markersLayer = L.layerGroup().addTo(map);
+
+        onSnapshot(camarasRef, (snapshot) => {
+            let total = 0, operativas = 0, pendientes = 0, configuradas = 0;
+            
+            markersLayer.clearLayers();
+
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                total++;
+
+                const estado = data.estado ? data.estado.trim().toLowerCase() : "";
+
+                if (estado === "operativa") operativas++;
+                else if (estado === "pendiente") pendientes++;
+                else if (estado === "configurada") configuradas++;
+
+                // Lógica para procesar coordenadas (String o campos separados)
+                let lat = null;
+                let lng = null;
+
+                if (data.coordenadas) {
+                    const partes = data.coordenadas.split(',');
+                    if (partes.length === 2) {
+                        lat = parseFloat(partes[0].trim());
+                        lng = parseFloat(partes[1].trim());
+                    }
+                } else if (data.lat && data.lng) {
+                    lat = parseFloat(data.lat);
+                    lng = parseFloat(data.lng);
+                }
+
+                if (lat && lng) {
+                    let statusColor = "black";
+                    if(estado === "operativa") statusColor = "#2ecc71";
+                    if(estado === "pendiente") statusColor = "#f39c12";
+                    if(estado === "configurada") statusColor = "#3498db";
+
+                    // --- CAMBIO AQUÍ: Añadimos draggable: true ---
+                    const marker = L.marker([lat, lng], { 
+                        icon: cameraIcon,
+                        draggable: true 
+                    }).bindPopup(`
+                        <div style="font-size:14px;">
+                            <b>ID:</b> ${data.idCamara || docSnap.id}<br>
+                            <b>Modelo:</b> ${data.modelo || "N/A"}<br>
+                            <b>Estado:</b> <span style="color:${statusColor}; font-weight:bold;">${estado.toUpperCase()}</span><br>
+                            <hr style="margin: 5px 0;">
+                            <i class="fa-solid fa-network-wired"></i> ${data.ip || "Sin IP"}
+                            <p style="font-size: 10px; color: #888; margin-top:5px;">Arrastra para mover</p>
+                        </div>
+                    `);
+
+                    // --- NUEVA LÓGICA: Evento para guardar en Firebase al soltar ---
+                    marker.on('dragend', async function(event) {
+                        const markerPos = event.target.getLatLng();
+                        const nuevaCoordenada = `${markerPos.lat.toFixed(6)}, ${markerPos.lng.toFixed(6)}`;
+                        
+                        try {
+                            // Actualizamos el documento en la colección "camaras" usando el ID de Firebase
+                            await updateDoc(doc(db, "camaras", docSnap.id), {
+                                coordenadas: nuevaCoordenada
+                            });
+                            console.log(`Ubicación actualizada para ${data.idCamara}: ${nuevaCoordenada}`);
+                        } catch (error) {
+                            console.error("Error al actualizar la ubicación:", error);
+                            alert("No se pudo guardar la nueva ubicación.");
+                        }
+                    });
+                    
+                    markersLayer.addLayer(marker);
+                }
+            });
+
+            totalEl.textContent = total;
+            operativasEl.textContent = operativas;
+            pendientesEl.textContent = pendientes;
+            if (configuradasEl) configuradasEl.textContent = configuradas;
+        });
+    </script>
+
+</body>
+</html>

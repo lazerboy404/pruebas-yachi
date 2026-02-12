@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Helper de Evidencias</title>
+    <link rel="stylesheet" href="styles.css?v=12">
+    <link rel="stylesheet" href="responsive-safe.css?v=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>📸 Subir Evidencias</h1>
+        <a href="gestion.html" style="color: #3498db; text-decoration: none; font-weight: bold;">
+            <i class="fa-solid fa-arrow-left"></i> Volver a Gestión
+        </a>
+    </header>
+
+    <main>
+        <p id="evid-feedback" style="margin: 10px 0; font-weight: bold; min-height: 1.2em;"></p>
+        <section class="details-table">
+            <h2>Listado</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Modelo</th>
+                            <th>Estado</th>
+                            <th>Evidencias</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="evid-table"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div id="galeria-modal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 2000;">
+        <div style="background: #2c3e50; border: 1px solid #34495e; padding: 16px; border-radius: 8px; max-width: 700px; width: 94%; max-height: 85vh; overflow-y: auto;">
+            <h3 style="margin-top: 0; margin-bottom: 16px; color: #3498db; text-align: center; font-size: 1.3em;">
+                Galería de Evidencias
+                <span id="modal-id-camara" style="display: block; font-size: 0.8em; color: #bdc3c7; margin-top: 4px;"></span>
+            </h3>
+            <div style="display:flex; gap:30px; margin-bottom:15px; justify-content: center; margin-top: 10px;">
+                 <div style="display: flex; flex-direction: column; align-items: center; margin-top: 25px;">
+                     <div id="box-inicial" onclick="subirEvidenciasTipo('INICIAL')" title="Haz click para subir o reemplazar evidencia inicial" style="background:#2c3e50; border:2px dashed #27ae60; border-radius:8px; cursor:pointer; transition: all 0.2s ease; height:150px; width:150px; position:relative; overflow:hidden; padding:15px; display:flex; align-items:center; justify-content:center;" onmouseover="this.style.background='#34495e'; this.style.transform='scale(1.02)'" onmouseout="this.style.background='#2c3e50'; this.style.transform='scale(1)'">
+                         <div id="content-inicial" style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                             <i class="fa-solid fa-camera" style="font-size:1.5em; margin-bottom:8px; color:#27ae60;"></i>
+                             <div style="color: #27ae60; font-size:1em;">ID_INICIAL</div>
+                             <div style="font-size:0.8em; opacity:0.8; margin-top:4px; color:#27ae60;">Haz click para subir</div>
+                         </div>
+                     </div>
+                     <div id="nombre-container-inicial" style="display: flex; flex-direction: column; align-items: center; margin-top: 8px; width: 150px; gap: 4px;">
+                         <div style="color: #27ae60; font-size: 12px; font-weight: bold; text-align: center;">ID_INICIAL</div>
+                         <button id="delete-btn-inicial" style="display: none; background: #e74c3c; color: white; border: none; border-radius: 4px; width: 24px; height: 24px; font-size: 11px; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;" onclick="event.stopPropagation(); eliminarEvidencia('')">
+                             <i class="fa-solid fa-trash" style="font-size: 11px;"></i>
+                         </button>
+                     </div>
+                 </div>
+                 
+                 <div style="display: flex; flex-direction: column; align-items: center; margin-top: 25px;">
+                     <div id="box-final" onclick="subirEvidenciasTipo('FINAL')" title="Haz click para subir o reemplazar evidencia final" style="background:#2c3e50; border:2px dashed #8e44ad; border-radius:8px; cursor:pointer; transition: all 0.2s ease; height:150px; width:150px; position:relative; overflow:hidden; padding:15px; display:flex; align-items:center; justify-content:center;" onmouseover="this.style.background='#34495e'; this.style.transform='scale(1.02)'" onmouseout="this.style.background='#2c3e50'; this.style.transform='scale(1)'">
+                         <div id="content-final" style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                             <i class="fa-solid fa-camera" style="font-size:1.5em; margin-bottom:8px; color:#8e44ad;"></i>
+                             <div style="color: #8e44ad; font-size:1em;">ID_FINAL</div>
+                             <div style="font-size:0.8em; opacity:0.8; margin-top:4px; color:#8e44ad;">Haz click para subir</div>
+                         </div>
+                     </div>
+                     <div id="nombre-container-final" style="display: flex; flex-direction: column; align-items: center; margin-top: 8px; width: 150px; gap: 4px;">
+                         <div style="color: #8e44ad; font-size: 12px; font-weight: bold; text-align: center;">ID_FINAL</div>
+                         <button id="delete-btn-final" style="display: none; background: #e74c3c; color: white; border: none; border-radius: 4px; width: 24px; height: 24px; font-size: 11px; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;" onclick="event.stopPropagation(); eliminarEvidencia('')">
+                             <i class="fa-solid fa-trash" style="font-size: 11px;"></i>
+                         </button>
+                     </div>
+                 </div>
+             </div>
+            <div id="galeria-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px;"></div>
+            <div id="galeria-feedback" style="margin-top: 10px; text-align: center; font-size: 14px; min-height: 20px;"></div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px; gap: 10px;">
+                <button onclick="cerrarGaleria()" class="btn-tech" style="flex: 0 0 auto;">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <input id="evid-input" type="file" accept="image/*" capture="environment" multiple style="display:none;">
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDz17f-cSbHRgBnyDnBsSjVDfAI4mSZ_0",
+            authDomain: "pachuca-uaeh.firebaseapp.com",
+            projectId: "pachuca-uaeh",
+            storageBucket: "pachuca-uaeh.firebasestorage.app", // Ruta corregida según tu imagen
+            messagingSenderId: "111780147134",
+            appId: "1:111780147134:web:32634929b7427d21b1d3ef",
+            measurementId: "G-M7303H8HBM"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        const camarasRef = collection(db, "camaras");
+
+        const tableBody = document.getElementById("evid-table");
+        const feedback = document.getElementById("evid-feedback");
+        let allData = [];
+        let docIdActual = null;
+        let tipoCargaActual = null;
+
+        onSnapshot(camarasRef, (snapshot) => {
+            allData = snapshot.docs.map(doc => ({
+                ...doc.data(),
+                docId: doc.id
+            }));
+            renderTabla();
+        });
+
+        const renderTabla = () => {
+            tableBody.innerHTML = "";
+            
+            // Ordenar los datos por ID de cámara de menor a mayor
+            const datosOrdenados = [...allData].sort((a, b) => {
+                const idA = parseInt(a.idCamara) || 0;
+                const idB = parseInt(b.idCamara) || 0;
+                return idA - idB;
+            });
+            
+            datosOrdenados.forEach((cam) => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = cam.idCamara || "---";
+                row.insertCell(1).textContent = cam.modelo || "---";
+                row.insertCell(2).textContent = cam.estado || "Pendiente";
+                const evidenciasCount = Array.isArray(cam.imagenes) ? cam.imagenes.length : 0;
+                row.insertCell(3).textContent = evidenciasCount;
+                
+                const acciones = row.insertCell(4);
+                acciones.style.display = "flex";
+                acciones.style.gap = "8px";
+                acciones.style.justifyContent = "center";
+                
+                const btnCam = document.createElement("button");
+                btnCam.className = "btn-tech";
+                btnCam.style.borderColor = "#9b59b6";
+                btnCam.style.color = "#9b59b6";
+                btnCam.innerHTML = '<i class="fa-solid fa-camera"></i>';
+                btnCam.onclick = () => abrirGaleria(cam.docId);
+                acciones.appendChild(btnCam);
+            });
+        };
+
+        window.abrirGaleria = (docId) => {
+            if (!docId) return;
+            docIdActual = docId; // Aseguramos que se guarde el ID del documento
+            const actual = allData.find(d => d.docId === docId) || {};
+            document.getElementById("modal-id-camara").textContent = `ID: ${actual.idCamara || 'Sin ID'}`;
+            
+            const arr = Array.isArray(actual.imagenes) ? actual.imagenes : [];
+            
+            // Obtener la última imagen de cada tipo
+            const imagenInicial = arr.filter(item => item.nombre && item.nombre.includes('INICIAL')).pop();
+            const imagenFinal = arr.filter(item => item.nombre && item.nombre.includes('FINAL')).pop();
+            
+            // Actualizar recuadro ID_INICIAL
+            const boxInicial = document.getElementById("box-inicial");
+            const contentInicial = document.getElementById("content-inicial");
+            
+            // Verificar que los elementos existan antes de manipularlos
+            if (!boxInicial || !contentInicial) return;
+            
+            if (imagenInicial) {
+                contentInicial.innerHTML = `
+                    <img src="${imagenInicial.url}" style="width:100%; height:100%; border-radius:4px; object-fit:cover; border:2px solid #27ae60;">
+                `;
+                
+                // Mostrar botón de eliminar fuera del recuadro y actualizar nombre con extensión
+                const deleteBtnInicial = document.getElementById("delete-btn-inicial");
+                const nombreTextInicial = document.querySelector("#nombre-container-inicial > div");
+                if (deleteBtnInicial && nombreTextInicial) {
+                    deleteBtnInicial.style.display = "flex";
+                    deleteBtnInicial.onclick = (e) => {
+                        e.stopPropagation();
+                        eliminarEvidencia(imagenInicial.nombre);
+                    };
+                    // Mostrar extensión de la imagen con ID real
+                    const extension = imagenInicial.nombre.split('.').pop().toLowerCase();
+                    nombreTextInicial.textContent = `ID${docIdActual}_INICIAL.${extension}`;
+                }
+                boxInicial.style.border = "2px solid #27ae60";
+                boxInicial.style.background = "#34495e";
+            } else {
+                contentInicial.innerHTML = `
+                    <i class="fa-solid fa-camera" style="font-size:1.2em; margin-bottom:5px; color:#27ae60;"></i>
+                    <div style="color: #27ae60;">ID_INICIAL</div>
+                    <div style="font-size:0.8em; opacity:0.8; margin-top:4px; color:#27ae60;">Haz click para subir</div>
+                `;
+                // Ocultar botón de eliminar si no hay imagen
+                const deleteBtnInicial = document.getElementById("delete-btn-inicial");
+                if (deleteBtnInicial) {
+                    deleteBtnInicial.style.display = "none";
+                }
+                boxInicial.style.border = "2px dashed #27ae60";
+                boxInicial.style.background = "#2c3e50";
+            }
+            
+            // Actualizar recuadro ID_FINAL
+            const boxFinal = document.getElementById("box-final");
+            const contentFinal = document.getElementById("content-final");
+            
+            // Verificar que los elementos existan antes de manipularlos
+            if (!boxFinal || !contentFinal) return;
+            
+            if (imagenFinal) {
+                contentFinal.innerHTML = `
+                    <img src="${imagenFinal.url}" style="width:100%; height:100%; border-radius:4px; object-fit:cover; border:2px solid #8e44ad;">
+                `;
+                
+                // Mostrar botón de eliminar fuera del recuadro y actualizar nombre con extensión
+                const deleteBtnFinal = document.getElementById("delete-btn-final");
+                const nombreTextFinal = document.querySelector("#nombre-container-final > div");
+                if (deleteBtnFinal && nombreTextFinal) {
+                    deleteBtnFinal.style.display = "flex";
+                    deleteBtnFinal.onclick = (e) => {
+                        e.stopPropagation();
+                        eliminarEvidencia(imagenFinal.nombre);
+                    };
+                    // Mostrar extensión de la imagen con ID real
+                    const extension = imagenFinal.nombre.split('.').pop().toLowerCase();
+                    nombreTextFinal.textContent = `ID${docIdActual}_FINAL.${extension}`;
+                }
+                boxFinal.style.border = "2px solid #8e44ad";
+                boxFinal.style.background = "#34495e";
+            } else {
+                contentFinal.innerHTML = `
+                    <i class="fa-solid fa-camera" style="font-size:1.2em; margin-bottom:5px; color:#8e44ad;"></i>
+                    <div style="color: #8e44ad;">ID_FINAL</div>
+                    <div style="font-size:0.8em; opacity:0.8; margin-top:4px; color:#8e44ad;">Haz click para subir</div>
+                `;
+                // Ocultar botón de eliminar si no hay imagen
+                const deleteBtnFinal = document.getElementById("delete-btn-final");
+                if (deleteBtnFinal) {
+                    deleteBtnFinal.style.display = "none";
+                }
+                boxFinal.style.border = "2px dashed #8e44ad";
+                boxFinal.style.background = "#2c3e50";
+            }
+
+            document.getElementById("galeria-modal").style.display = "flex";
+        };
+
+        window.subirEvidenciasTipo = async (tipo) => {
+            if (!docIdActual) { alert("Selecciona una cámara primero."); return; }
+            tipoCargaActual = (tipo === 'INICIAL') ? 'INICIAL' : 'FINAL';
+            
+            // Crear input temporal para seleccionar archivo
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.style.display = 'none';
+            
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                try {
+                    // Renombrar el archivo con el formato ID[numero]_[TIPO].[extension]
+                    const extension = file.name.split('.').pop().toLowerCase();
+                    const nuevoNombre = `ID${docIdActual}_${tipo}.${extension}`;
+                    
+                    // Optimizar la imagen antes de subirla
+                    const imagenOptimizada = await optimizarImagen(file);
+                    
+                    // Guardar el docIdActual actual para usarlo durante la subida
+                    document.getElementById("evid-input").setAttribute("data-doc-id", docIdActual);
+                    
+                    // Crear un nuevo FileList con el archivo optimizado
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(new File([imagenOptimizada], nuevoNombre, {type: 'image/jpeg'}));
+                    document.getElementById("evid-input").files = dataTransfer.files;
+                    
+                    // Disparar el evento change del input original
+                    document.getElementById("evid-input").dispatchEvent(new Event('change', { bubbles: true }));
+                    
+                } catch (error) {
+                    console.error("Error procesando imagen:", error);
+                    const galeriaFeedback = document.getElementById("galeria-feedback");
+                    if (galeriaFeedback) {
+                        galeriaFeedback.style.color = "#e74c3c";
+                        galeriaFeedback.textContent = "❌ Error al procesar la imagen";
+                    }
+                }
+            };
+            
+            document.body.appendChild(input);
+            input.click();
+            document.body.removeChild(input);
+        };
+        
+        // Función para optimizar la imagen (reducir tamaño manteniendo calidad)
+        async function optimizarImagen(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Redimensionar manteniendo proporciones (máximo 1200px en el lado más grande)
+                        const maxSize = 1200;
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        if (width > height) {
+                            if (width > maxSize) {
+                                height = Math.round((height * maxSize) / width);
+                                width = maxSize;
+                            }
+                        } else {
+                            if (height > maxSize) {
+                                width = Math.round((width * maxSize) / height);
+                                height = maxSize;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        // Dibujar imagen optimizada
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Convertir a Blob con calidad del 80%
+                        canvas.toBlob((blob) => {
+                            if (!blob) {
+                                reject(new Error("Error al optimizar imagen"));
+                                return;
+                            }
+                            
+                            // Crear nuevo archivo con el mismo tipo y nombre
+                            const nuevoArchivo = new File([blob], file.name, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+                            
+                            resolve(nuevoArchivo);
+                        }, 'image/jpeg', 0.8); // Calidad del 80%
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        document.getElementById("evid-input").addEventListener("change", async (e) => {
+            const files = Array.from(e.target.files || []);
+            const currentDocId = e.target.getAttribute("data-doc-id");
+            if (!currentDocId || files.length === 0) return;
+
+            const actual = allData.find(d => d.docId === currentDocId) || {};
+            const arrBase = Array.isArray(actual.imagenes) ? actual.imagenes.slice() : [];
+            const safeId = (actual.idCamara || "CAM").toString().replace(/[^a-zA-Z0-9_-]/g, "_");
+            let nuevasImagenes = [];
+
+            try {
+                const galeriaFeedback = document.getElementById("galeria-feedback");
+                if (galeriaFeedback) {
+                    galeriaFeedback.style.color = "#f1c40f";
+                    galeriaFeedback.textContent = `⏳ Subiendo ${files.length} imagen(es)...`;
+                }
+
+                if (tipoCargaActual === 'INICIAL') {
+                    const file = files[0];
+                    const nombreArchivo = `${safeId}_INICIAL.JPG`;
+                    const prevIndex = arrBase.findIndex(it => ((it.nombre || '').toUpperCase() === nombreArchivo.toUpperCase()) || (it.tipo === 'inicial'));
+                    if (prevIndex >= 0) {
+                        const prevName = arrBase[prevIndex].nombre;
+                        try {
+                            await deleteObject(storageRef(storage, `evidencias/${currentDocId}/${prevName}`));
+                        } catch {}
+                        arrBase.splice(prevIndex, 1);
+                    }
+                    const storageReference = storageRef(storage, `evidencias/${currentDocId}/${nombreArchivo}`);
+                    const snapshot = await uploadBytes(storageReference, file, { contentType: file.type || 'image/jpeg' });
+                    const downloadURL = await getDownloadURL(snapshot.ref);
+                    nuevasImagenes.push({
+                        nombre: nombreArchivo,
+                        url: downloadURL,
+                        tipo: 'inicial',
+                        fechaSubida: new Date().toISOString()
+                    });
+                } else {
+                    const finalsCount = arrBase.filter(it => {
+                        const n = (it.nombre || '');
+                        return new RegExp(`^${safeId}_FINAL(\\.JPG|_\\d+\\.JPG)$`, 'i').test(n) || (it.tipo === 'final');
+                    }).length;
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        let nombreArchivo = "";
+                        if (finalsCount === 0 && i === 0) {
+                            nombreArchivo = `${safeId}_FINAL.JPG`;
+                        } else {
+                            nombreArchivo = `${safeId}_FINAL_${finalsCount + i + 1}.JPG`;
+                        }
+                        const storageReference = storageRef(storage, `evidencias/${currentDocId}/${nombreArchivo}`);
+                        const snapshot = await uploadBytes(storageReference, file, { contentType: file.type || 'image/jpeg' });
+                        const downloadURL = await getDownloadURL(snapshot.ref);
+                        nuevasImagenes.push({
+                            nombre: nombreArchivo,
+                            url: downloadURL,
+                            tipo: 'final',
+                            fechaSubida: new Date().toISOString()
+                        });
+                    }
+                }
+
+                const camaraDocRef = doc(db, "camaras", currentDocId);
+                const arrFinal = arrBase.concat(nuevasImagenes);
+                await updateDoc(camaraDocRef, {
+                    imagenes: arrFinal,
+                    fechaActualizacion: new Date()
+                });
+
+                if (galeriaFeedback) {
+                    galeriaFeedback.style.color = "#2ecc71";
+                    galeriaFeedback.textContent = `✅ ¡Evidencia(s) subida(s) con éxito!`;
+                }
+                tipoCargaActual = null;
+                abrirGaleria(currentDocId);
+
+            } catch (error) {
+                console.error("Error al subir:", error);
+                if (galeriaFeedback) {
+                    galeriaFeedback.style.color = "#e74c3c";
+                    galeriaFeedback.textContent = "❌ Error: " + error.message;
+                }
+            } finally {
+                e.target.value = ""; 
+            }
+        });
+        
+        window.eliminarEvidencia = async (nombre) => {
+            try {
+                if (!docIdActual) return;
+                const actual = allData.find(d => d.docId === docIdActual) || {};
+                const arr = Array.isArray(actual.imagenes) ? [...actual.imagenes] : [];
+                const index = arr.findIndex(x => x && x.nombre === nombre);
+                if (index < 0) return;
+                const confirmar = confirm(`¿Eliminar evidencia "${nombre}"?`);
+                if (!confirmar) return;
+
+                const path = `evidencias/${docIdActual}/${nombre}`;
+                const refFile = storageRef(storage, path);
+                await deleteObject(refFile);
+
+                arr.splice(index, 1);
+                const camaraDocRef = doc(db, "camaras", docIdActual);
+                await updateDoc(camaraDocRef, {
+                    imagenes: arr,
+                    fechaActualizacion: new Date()
+                });
+                
+                const galeriaFeedback = document.getElementById("galeria-feedback");
+                if (galeriaFeedback) {
+                    galeriaFeedback.style.color = "#2ecc71";
+                    galeriaFeedback.textContent = "Evidencia eliminada.";
+                    setTimeout(() => { galeriaFeedback.textContent = ""; }, 3000);
+                }
+                
+                // Restaurar nombres originales después de eliminar
+                const nombreTextInicial = document.querySelector("#nombre-container-inicial > div");
+                const nombreTextFinal = document.querySelector("#nombre-container-final > div");
+                
+                if (nombreTextInicial) nombreTextInicial.textContent = `ID${docIdActual}_INICIAL`;
+                if (nombreTextFinal) nombreTextFinal.textContent = `ID${docIdActual}_FINAL`;
+                
+                // Solo actualizar la galería si está visible
+                if (document.getElementById("galeria-modal").style.display === "flex") {
+                    abrirGaleria(docIdActual);
+                }
+            } catch (error) {
+                console.error("Error eliminando evidencia:", error);
+                const galeriaFeedback = document.getElementById("galeria-feedback");
+                if (galeriaFeedback) {
+                    galeriaFeedback.style.color = "#e74c3c";
+                    galeriaFeedback.textContent = "❌ Error al eliminar evidencia.";
+                    setTimeout(() => { galeriaFeedback.textContent = ""; }, 3000);
+                }
+            }
+        };
+
+        window.cerrarGaleria = () => {
+            document.getElementById("galeria-modal").style.display = "none";
+            docIdActual = null;
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+/* Estilos específicos para evidencias.html - Mantienen colores originales */
+
+/* Header específico para evidencias */
+body.evidencias-page header {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #3498db;
+    position: relative;
+    height: auto !important;
+    background-color: #2c3e50 !important;
+}
+
+body.evidencias-page header h1 {
+    margin: 0;
+    color: #ecf0f1 !important;
+    text-align: center;
+    line-height: 1.2;
+    max-width: 100%;
+}
+
+/* Body específico para evidencias */
+body.evidencias-page {
+    background-color: #2c3e50 !important;
+    color: #ecf0f1 !important;
+}
+
+/* Restaurar colores específicos de evidencias */
+body.evidencias-page .camera-card-inicial i,
+body.evidencias-page .camera-card-inicial div {
+    color: #27ae60 !important;
+}
+
+body.evidencias-page .camera-card-final i,
+body.evidencias-page .camera-card-final div {
+    color: #8e44ad !important;
+}
+
+body.evidencias-page .back-link {
+    color: #3498db !important;
+}
+
+/* Asegurar que los botones mantengan sus colores */
+body.evidencias-page button {
+    background-color: #3498db !important;
+    color: white !important;
+}
+
+body.evidencias-page .btn-danger {
+    background-color: #e74c3c !important;
+}

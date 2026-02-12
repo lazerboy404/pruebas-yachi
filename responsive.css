@@ -1,0 +1,385 @@
+/* Responsive CSS Framework for YACHI Project */
+
+/* Reset y base */
+* {
+    box-sizing: border-box;
+}
+
+/* Restaurar estilos específicos del header */
+header {
+    margin: 0;
+    padding: 20px;
+}
+
+header h1 {
+    margin: 0;
+    color: #ecf0f1;
+}
+
+html {
+    font-size: 16px;
+}
+
+/* Los colores del body se mantienen del styles.css original */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+}
+
+/* Container responsivo */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Grid system responsivo */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px;
+}
+
+.col {
+    flex: 1 0 0%;
+    padding: 0 15px;
+}
+
+/* Media Queries para diferentes dispositivos */
+
+/* Mobile First (default) */
+[class*="col-"] {
+    width: 100%;
+    padding: 0 15px;
+}
+
+/* Tablet (≥768px) */
+@media (min-width: 768px) {
+    .col-md-1 { width: 8.33%; }
+    .col-md-2 { width: 16.66%; }
+    .col-md-3 { width: 25%; }
+    .col-md-4 { width: 33.33%; }
+    .col-md-5 { width: 41.66%; }
+    .col-md-6 { width: 50%; }
+    .col-md-7 { width: 58.33%; }
+    .col-md-8 { width: 66.66%; }
+    .col-md-9 { width: 75%; }
+    .col-md-10 { width: 83.33%; }
+    .col-md-11 { width: 91.66%; }
+    .col-md-12 { width: 100%; }
+    
+    .container {
+        padding: 0 20px;
+    }
+}
+
+/* Desktop (≥992px) */
+@media (min-width: 992px) {
+    .col-lg-1 { width: 8.33%; }
+    .col-lg-2 { width: 16.66%; }
+    .col-lg-3 { width: 25%; }
+    .col-lg-4 { width: 33.33%; }
+    .col-lg-5 { width: 41.66%; }
+    .col-lg-6 { width: 50%; }
+    .col-lg-7 { width: 58.33%; }
+    .col-lg-8 { width: 66.66%; }
+    .col-lg-9 { width: 75%; }
+    .col-lg-10 { width: 83.33%; }
+    .col-lg-11 { width: 91.66%; }
+    .col-lg-12 { width: 100%; }
+    
+    .container {
+        padding: 0 30px;
+    }
+}
+
+/* Large Desktop (≥1200px) */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1200px;
+        padding: 0 15px;
+    }
+}
+
+/* Utilidades responsivas */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.d-none { display: none; }
+.d-block { display: block; }
+.d-flex { display: flex; }
+.d-grid { display: grid; }
+
+/* Flexbox utilities */
+.flex-column { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-end { justify-content: flex-end; }
+.align-center { align-items: center; }
+.align-start { align-items: flex-start; }
+.align-end { align-items: flex-end; }
+
+/* Grid utilities */
+.grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.grid-1 { grid-template-columns: repeat(1, 1fr); }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (min-width: 768px) {
+    .grid-md-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-md-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-md-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 992px) {
+    .grid-lg-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-lg-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid-lg-6 { grid-template-columns: repeat(6, 1fr); }
+}
+
+/* Spacing responsivo */
+.p-1 { padding: 0.5rem; }
+.p-2 { padding: 1rem; }
+.p-3 { padding: 1.5rem; }
+.p-4 { padding: 2rem; }
+
+.m-1 { margin: 0.5rem; }
+.m-2 { margin: 1rem; }
+.m-3 { margin: 1.5rem; }
+.m-4 { margin: 2rem; }
+
+/* Botones responsivos - Solo estructura, sin colores */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 120px;
+}
+
+/* Las clases de colores se mantienen del styles.css original */
+
+/* Forms responsivos */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+}
+
+/* Tablas responsivas mejoradas */
+.table-responsive {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px; /* Mínimo para evitar compresión excesiva */
+}
+
+th, td {
+    padding: 0.75rem 0.5rem;
+    text-align: left;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+}
+
+th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Estilos responsivos para tablas */
+@media (max-width: 768px) {
+    .table-responsive {
+        border: none;
+        border-radius: 0;
+    }
+    
+    table {
+        min-width: 100%;
+        font-size: 0.85rem;
+    }
+    
+    th, td {
+        padding: 0.5rem 0.3rem;
+        white-space: normal;
+        word-break: break-word;
+    }
+    
+    /* Ocultar columnas menos importantes en móviles */
+    .hidden-mobile-column {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    table {
+        font-size: 0.8rem;
+    }
+    
+    th, td {
+        padding: 0.4rem 0.2rem;
+    }
+    
+    /* Convertir tabla a cards en móviles muy pequeños */
+    .table-cards {
+        min-width: 100%;
+    }
+    
+    .table-cards thead {
+        display: none;
+    }
+    
+    .table-cards tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        background: white;
+    }
+    
+    .table-cards tbody td {
+        display: block;
+        text-align: right;
+        padding: 0.5rem;
+        position: relative;
+        border: none;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .table-cards tbody td:last-child {
+        border-bottom: none;
+    }
+    
+    .table-cards tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        text-align: left;
+        position: absolute;
+        left: 0.5rem;
+        color: #6c757d;
+    }
+}
+
+/* Cards responsivas */
+.card {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Navigation responsiva */
+.navbar {
+    background: #2c3e50;
+    padding: 1rem 0;
+}
+
+.nav-menu {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.nav-menu a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    transition: background 0.3s ease;
+}
+
+.nav-menu a:hover {
+    background: #34495e;
+}
+
+/* Mobile menu */
+@media (max-width: 767px) {
+    .nav-menu {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .navbar {
+        padding: 0.5rem 0;
+    }
+}
+
+/* Modal responsivo */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    max-width: 90%;
+    max-height: 90%;
+    overflow: auto;
+}
+
+@media (min-width: 768px) {
+    .modal-content {
+        max-width: 600px;
+        padding: 2rem;
+    }
+}
+
+/* Utilidades para ocultar/mostrar en diferentes breakpoints */
+.hidden-mobile { display: none; }
+.hidden-tablet { display: none; }
+.hidden-desktop { display: block; }
+
+@media (min-width: 768px) {
+    .hidden-mobile { display: block; }
+    .hidden-tablet { display: none; }
+    .hidden-desktop { display: none; }
+}
+
+@media (min-width: 992px) {
+    .hidden-mobile { display: block; }
+    .hidden-tablet { display: block; }
+    .hidden-desktop { display: none; }
+}

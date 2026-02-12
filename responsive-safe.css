@@ -1,0 +1,123 @@
+/* 
+RESPONSIVE SAFE FRAMEWORK
+Solo agrega responsividad SIN afectar estilos existentes
+*/
+
+/* =========================================
+   MEDIA QUERIES PARA RESPONSIVIDAD
+   ========================================= */
+
+/* Tablets (768px - 991px) */
+@media (max-width: 991px) {
+    /* Contenedores flexibles */
+    .container,
+    header,
+    main,
+    section {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+    
+    /* Flexbox responsivo */
+    .flex-tablet {
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+    
+    /* Grid responsivo para tablets */
+    .grid-tablet-1 { grid-template-columns: 1fr !important; }
+    .grid-tablet-2 { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* Móviles (≤767px) */
+@media (max-width: 767px) {
+    /* Ajustes generales para móviles */
+    body {
+        padding: 10px !important;
+    }
+    
+    /* Header móvil */
+    header {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 10px !important;
+        padding: 15px 10px !important;
+    }
+    
+    /* Flexbox móvil */
+    .flex-mobile {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    
+    /* Grid móvil */
+    .grid-mobile-1 { grid-template-columns: 1fr !important; }
+    
+    /* Tablas responsivas (solo estructura) */
+    .table-responsive-safe {
+        overflow-x: auto !important;
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    /* Imágenes responsivas */
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+    
+    /* Botones móviles */
+    .btn-mobile {
+        width: 100% !important;
+        margin-bottom: 10px !important;
+    }
+}
+
+/* Móviles pequeños (≤480px) */
+@media (max-width: 480px) {
+    /* Texto más pequeño */
+    body {
+        font-size: 14px !important;
+    }
+    
+    h1 { font-size: 1.5rem !important; }
+    h2 { font-size: 1.3rem !important; }
+    h3 { font-size: 1.1rem !important; }
+    
+    /* Padding reducido */
+    .container,
+    header,
+    section {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
+    
+    /* Elementos ocultos en móviles */
+    .hide-mobile {
+        display: none !important;
+    }
+}
+
+/* =========================================
+   UTILIDADES RESPONSIVAS (OPTIONAL)
+   ========================================= */
+
+/* Clases para usar manualmente */
+.responsive-img { max-width: 100%; height: auto; }
+.responsive-table { overflow-x: auto; display: block; }
+.responsive-flex { display: flex; flex-wrap: wrap; }
+
+/* Visibilidad responsiva */
+.show-desktop { display: block; }
+.show-tablet { display: none; }
+.show-mobile { display: none; }
+
+@media (max-width: 991px) {
+    .show-desktop { display: none; }
+    .show-tablet { display: block; }
+}
+
+@media (max-width: 767px) {
+    .show-tablet { display: none; }
+    .show-mobile { display: block; }
+}

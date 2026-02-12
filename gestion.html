@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Cámaras</title>
+    <link rel="stylesheet" href="styles.css?v=10"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Aseguramos que el botón tech tenga un estilo base consistente */
+        .btn-tech {
+            background: transparent;
+            border: 1px solid #3498db;
+            color: #3498db;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-tech:hover {
+            background: rgba(52, 152, 219, 0.1);
+            transform: scale(1.05);
+        }
+        /* Clase para el formulario visible si no la tienes en tu CSS */
+        #camera-form-content {
+            display: none;
+        }
+        #camera-form-content.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🔧 CENTRO DE GESTIÓN</h1>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <a href="index.html" style="color: #3498db; text-decoration: none; font-weight: bold;">
+                <i class="fa-solid fa-arrow-left"></i> Volver al Dashboard
+            </a>
+            <a href="evidencias.html" style="color: #8e44ad; text-decoration: none; font-weight: bold;">
+                <i class="fa-solid fa-camera"></i> Ir a Evidencias
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <section class="filter-container tools-container">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="filter-label"><i class="fa-solid fa-filter"></i> Estado:</span>
+                <select id="status-filter">
+                    <option value="Todas">Todos</option>
+                    <option value="Pendiente">🔴 Pendiente</option>
+                    <option value="Configurada">🟡 Configurada</option>
+                    <option value="Operativa">🟢 Operativa</option> 
+                </select>
+            </div>
+            
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" placeholder="Buscar por ID, IP, tipo o etiqueta...">
+            </div>
+            <button class="btn-tech-icon" onclick="exportarTabla()" title="Descargar reporte CSV">
+                📥
+            </button>
+        </section>
+        
+        <section class="details-table">
+            <h2>Detalles</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>      
+                            <th>Modelo</th>     
+                            <th>Tipo</th>   
+                            <th>Coordenadas</th> 
+                            <th>IP</th>         
+                            <th>Etiqueta</th> 
+                            <th>Estado</th>
+                            <th>Herraje / Soporte</th> 
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="camera-list"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div class="form-container">
+        <div class="form-header" onclick="toggleForm()">
+            <h2>➕ Editar Cámara</h2> <i id="toggle-icon" class="fa-solid fa-chevron-down"></i>
+        </div>
+        
+        <div id="camera-form-content">
+            <form id="camera-form">
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div class="input-group" style="flex: 1;">
+                        <label>ID Cámara</label>
+                        <input type="text" id="id-camara" required>
+                    </div>
+                    <div class="input-group" style="flex: 1;">
+                        <label>Tipo (ej DOMO 1)</label>
+                        <input type="text" id="tipo" readonly style="background-color: #2c3e50; color: white; border: 1px solid #34495e; cursor: default;">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div class="input-group" style="flex: 1;">
+                        <label>Modelo</label>
+                        <input type="text" id="modelo">
+                    </div>
+                    <div class="input-group" style="flex: 1;">
+                        <label>Dirección IP</label>
+                        <input type="text" id="ip"> 
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Coordenadas (Lat, Long)</label>
+                    <input type="text" id="coordenadas">
+                </div>
+
+                <div class="input-group">
+                    <label>Etiqueta / Ubicación</label>
+                    <input type="text" id="etiqueta" required>
+                </div>
+
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div class="input-group" style="flex: 1;">
+                        <label>Herraje</label>
+                        <textarea id="herraje" rows="3" style="background-color: #2c3e50; color: white !important; border: 1px solid #34495e; width: 100%; padding: 8px; border-radius: 5px; resize: vertical;"></textarea>
+                    </div>
+                    <div class="input-group" style="flex: 1;">
+                        <label>Estado</label>
+                        <select id="estado" required>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Operativa">Operativa</option>
+                            <option value="Configurada">Configurada</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group" style="width: 100%;">
+                    <label>Observaciones</label>
+                    <textarea id="notas" rows="3" style="background-color: #2c3e50; color: white !important; border: 1px solid #34495e; width: 100%; padding: 8px; border-radius: 5px;"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">      
+                    <button type="button" onclick="cancelarEdicion()" style="width: 150px; background-color: #95a5a6; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                    <button type="submit" id="submit-button" style="width: 150px; background-color: #27ae60; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold;">Guardar Cambios</button>
+                </div>
+                <p id="feedback-message" style="text-align: right; margin-top: 10px; font-weight: bold;"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para visualización previa de imágenes -->
+    <div id="preview-modal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); align-items: center; justify-content: center; z-index: 3000;">
+        <div style="position: relative; max-width: 90vw; max-height: 90vh;">
+            <button onclick="cerrarPreviewModal()" style="position: absolute; top: -40px; right: 0; background: #e74c3c; color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            <img id="preview-image" src="" alt="Vista previa" style="max-width: 100%; max-height: 90vh; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+            <div id="preview-caption" style="position: absolute; bottom: -40px; left: 0; right: 0; text-align: center; color: white; font-size: 14px; background: rgba(0,0,0,0.7); padding: 8px; border-radius: 4px;"></div>
+        </div>
+    </div>
+
+    <div id="nota-modal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 2000;">
+        <div style="background: #2c3e50; border: 1px solid #34495e; padding: 20px; border-radius: 8px; max-width: 700px; width: 94%;">
+            <h3 style="margin-top: 0; color: #3498db;">Observaciones</h3>
+            <div id="nota-list" style="color: #ecf0f1; max-height: 360px; overflow-y: auto; display: grid; gap: 10px;"></div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 15px; gap: 10px;">
+                <button onclick="cerrarNotaModal()" class="btn-tech">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    <div id="herraje-modal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 2000;">
+        <div style="background: #2c3e50; border: 1px solid #34495e; padding: 20px; border-radius: 8px; max-width: 700px; width: 94%;">
+            <h3 style="margin-top: 0; color: #3498db;">Herraje / Soporte</h3>
+            <div id="herraje-modal-text" style="white-space: pre-wrap; color: #ecf0f1; max-height: 360px; overflow-y: auto;"></div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 15px; gap: 10px;">
+                <button onclick="cerrarHerrajeModal()" class="btn-tech">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    <div id="imagen-modal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 2000;">
+        <div style="background: #2c3e50; border: 1px solid #34495e; padding: 15px; border-radius: 8px; max-width: 600px; width: 90%; display: flex; flex-direction: column; align-items: center;">
+            <h3 style="margin: 0 0 10px 0; color: #3498db; text-align: center; font-size: 18px;">Imágenes</h3>
+            <div id="imagen-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 2px; width: 100%; padding: 5px; justify-items: center;"></div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 10px; gap: 8px; width: 100%;">
+                <button onclick="cerrarImagenModal()" class="btn-tech" style="padding: 6px 12px; font-size: 12px;">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, getDocs, deleteField } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+        
+        
+        const firebaseConfig = {
+          apiKey: "AIzaSyDz17f-cSbHRgBnyDnBsSjVDfAI4mSZ_0",
+          authDomain: "pachuca-uaeh.firebaseapp.com",
+          projectId: "pachuca-uaeh",
+          storageBucket: "pachuca-uaeh.appspot.com",
+          messagingSenderId: "111780147134",
+          appId: "1:111780147134:web:32634929b7427d21b1d3ef",
+          measurementId: "G-M7303H8HBM"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const camarasRef = collection(db, "camaras");
+        
+        let allCamerasData = [];
+        let idEditando = null;
+
+        const tableBody = document.getElementById("camera-list");
+        const statusFilter = document.getElementById("status-filter");
+        const searchInput = document.getElementById("search-input");
+        const cameraForm = document.getElementById('camera-form');
+        const submitButton = document.getElementById('submit-button');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const formContent = document.getElementById('camera-form-content');
+        const toggleIcon = document.getElementById('toggle-icon');
+        let previousNotes = "";
+
+        window.toggleForm = (forceOpen = false) => {
+            if (forceOpen) {
+                formContent.classList.add('visible');
+                toggleIcon.className = "fa-solid fa-chevron-up";
+            } else {
+                formContent.classList.toggle('visible');
+                toggleIcon.className = formContent.classList.contains('visible') ? "fa-solid fa-chevron-up" : "fa-solid fa-chevron-down";
+            }
+        };
+
+        onSnapshot(camarasRef, (snapshot) => {
+            allCamerasData = [];
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                data.docId = docSnap.id;
+                allCamerasData.push(data);
+            });
+            renderTable();
+        });
+
+        const renderTable = () => {
+            const filtroEstado = statusFilter.value;
+            const terminoBusqueda = searchInput.value.toLowerCase();
+            tableBody.innerHTML = ''; 
+
+            let datosFiltrados = allCamerasData.filter(cam => {
+                const pasaEstado = (filtroEstado === "Todas") || (cam.estado === filtroEstado);
+                if (terminoBusqueda === '') {
+                    return pasaEstado;
+                }
+                
+                // Búsqueda inteligente con prioridad por IDs numéricos
+                const esSoloNumeros = /^\d+$/.test(terminoBusqueda);
+                
+                const buscaPorCampos = 
+                    // Búsqueda exacta por ID (si es solo números, prioridad máxima)
+                    (cam.idCamara && cam.idCamara.toString().toLowerCase() === terminoBusqueda) ||
+                    // Búsqueda exacta por IP
+                    (cam.ip && cam.ip.toString().toLowerCase() === terminoBusqueda) ||
+                    // Búsqueda combinada: "TIPO ID" (ej: "DOMO 4")
+                    (cam.tipo && cam.idCamara && `${cam.tipo.toLowerCase()} ${cam.idCamara.toLowerCase()}` === terminoBusqueda) ||
+                    // Búsqueda combinada: "ID TIPO" (ej: "4 DOMO")
+                    (cam.idCamara && cam.tipo && `${cam.idCamara.toLowerCase()} ${cam.tipo.toLowerCase()}` === terminoBusqueda) ||
+                    // Búsqueda parcial por tipo (solo si no es solo números)
+                    (!esSoloNumeros && cam.tipo && cam.tipo.toString().toLowerCase().includes(terminoBusqueda)) ||
+                    // Búsqueda parcial por etiqueta (solo si no es solo números)
+                    (!esSoloNumeros && cam.etiqueta && cam.etiqueta.toString().toLowerCase().includes(terminoBusqueda)) ||
+                    // Búsqueda parcial en ID para términos largos (solo si es solo números)
+                    (esSoloNumeros && cam.idCamara && cam.idCamara.toString().toLowerCase().includes(terminoBusqueda) && terminoBusqueda.length >= 3);
+                
+                return pasaEstado && buscaPorCampos;
+            });
+
+            datosFiltrados.sort((a, b) => parseInt(a.idCamara) - parseInt(b.idCamara));
+
+            datosFiltrados.forEach((camara) => {
+                const row = tableBody.insertRow();
+                const estadoClass = camara.estado ? camara.estado.toLowerCase() : 'pendiente';
+
+                const comentariosArr = Array.isArray(camara.comentarios) ? camara.comentarios : [];
+                const notaTexto = (camara.observaciones || camara.notas || camara.notes || "").trim();
+                const tieneComentarios = comentariosArr.length > 0 || notaTexto !== "";
+
+                row.insertCell(0).textContent = camara.idCamara || '---';
+                row.insertCell(1).textContent = camara.modelo || '---';
+                row.insertCell(2).textContent = camara.tipo || '---';
+                row.insertCell(3).innerHTML = `<small style="font-family: monospace;">${camara.coordenadas || '---'}</small>`;
+                row.insertCell(4).textContent = camara.ip || '---';
+                row.insertCell(5).textContent = camara.etiqueta || '---';
+
+                const cellEstado = row.insertCell(6);
+                cellEstado.innerHTML = `<span class="status-badge status-${estadoClass}">${camara.estado || 'Pendiente'}</span>`;
+
+                const cellHerraje = row.insertCell(7);
+                const herrajeEl = document.createElement('div');
+                herrajeEl.style.color = "white";
+                herrajeEl.style.maxWidth = "180px";
+                herrajeEl.style.overflow = "hidden";
+                herrajeEl.style.textOverflow = "ellipsis";
+                herrajeEl.style.whiteSpace = "nowrap";
+                herrajeEl.title = camara.herraje || '';
+                herrajeEl.textContent = camara.herraje || '---';
+                if ((camara.herraje || '').trim() !== '') {
+                    herrajeEl.style.cursor = "pointer";
+                    herrajeEl.onclick = () => verHerraje(camara.herraje || '');
+                }
+                cellHerraje.appendChild(herrajeEl);
+
+                // COLUMNA ACCIONES
+                const actionCell = row.insertCell(8);
+                actionCell.style.display = "flex";
+                actionCell.style.alignItems = "center";
+                actionCell.style.justifyContent = "flex-end"; 
+                actionCell.style.gap = "8px";                
+                actionCell.style.paddingRight = "15px";       
+                actionCell.style.minWidth = "110px";          
+
+                actionCell.innerHTML = "";
+
+                if (tieneComentarios) {
+                    const btnNota = document.createElement('button');
+                    btnNota.className = "btn-tech";
+                    btnNota.style.cursor = "pointer";
+                    btnNota.style.borderColor = "#a29bfe";
+                    btnNota.style.color = "#a29bfe";
+                    btnNota.title = "Ver observaciones";
+                    const pendientes = comentariosArr.length > 0 ? comentariosArr.filter(c => !c.resuelto).length : (notaTexto !== "" ? (camara.observacionResuelta ? 0 : 1) : 0);
+                    btnNota.style.position = "relative";
+                    btnNota.innerHTML = '<i class="fa-solid fa-eye"></i>';
+                    if (pendientes > 0) {
+                        const badge = document.createElement('span');
+                        badge.textContent = String(pendientes);
+                        badge.style.position = "absolute";
+                        badge.style.top = "-8px";
+                        badge.style.left = "50%";
+                        badge.style.transform = "translateX(-50%)";
+                        badge.style.background = "#e74c3c";
+                        badge.style.color = "#ffffff";
+                        badge.style.borderRadius = "10px";
+                        badge.style.padding = "0 6px";
+                        badge.style.fontSize = "12px";
+                        badge.style.lineHeight = "16px";
+                        badge.style.minWidth = "16px";
+                        badge.style.display = "inline-block";
+                        badge.style.textAlign = "center";
+                        actionCell.style.position = "relative";
+                        btnNota.appendChild(badge);
+                    }
+                    btnNota.onclick = () => verObservaciones(camara);
+                    actionCell.appendChild(btnNota);
+                } else {
+                    const spacer = document.createElement('div');
+                    spacer.style.width = "38px";
+                    actionCell.appendChild(spacer);
+                }
+
+                // Botón Editar
+                const btnEdit = document.createElement('button');
+                btnEdit.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
+                btnEdit.className = "btn-tech";
+                btnEdit.onclick = () => iniciarComentario(camara.docId, camara);
+                actionCell.appendChild(btnEdit);
+
+                const btnCam = document.createElement('button');
+                btnCam.innerHTML = '<i class="fa-solid fa-camera"></i>';
+                btnCam.className = "btn-tech";
+                btnCam.style.borderColor = "#9b59b6";
+                btnCam.style.color = "#9b59b6";
+                btnCam.title = "Evidencias";
+                btnCam.style.position = "relative";
+                const imgCount = Array.isArray(camara.imagenes) ? camara.imagenes.length : 0;
+                if (imgCount > 0) {
+                    const badge = document.createElement('span');
+                    badge.textContent = String(imgCount);
+                    badge.style.position = "absolute";
+                    badge.style.top = "-8px";
+                    badge.style.left = "50%";
+                    badge.style.transform = "translateX(-50%)";
+                    badge.style.background = "#3498db";
+                    badge.style.color = "#ffffff";
+                    badge.style.borderRadius = "10px";
+                    badge.style.padding = "0 6px";
+                    badge.style.fontSize = "12px";
+                    badge.style.lineHeight = "16px";
+                    badge.style.minWidth = "16px";
+                    badge.style.display = "inline-block";
+                    badge.style.textAlign = "center";
+                    btnCam.appendChild(badge);
+                }
+                btnCam.onclick = () => abrirImagenes(camara.docId);
+                actionCell.appendChild(btnCam);
+            });
+        };
+
+        window.verObservaciones = (camara) => {
+            const modal = document.getElementById('nota-modal');
+            const listEl = document.getElementById('nota-list');
+            const arr = Array.isArray(camara.comentarios) ? camara.comentarios.slice() : [];
+            if (arr.length === 0) {
+                const legacy = (camara.observaciones || camara.notas || camara.notes || "").trim();
+                if (legacy) {
+                    arr.push({ texto: legacy, resuelto: !!camara.observacionResuelta, fecha: new Date() });
+                }
+            }
+            listEl.innerHTML = "";
+            arr.forEach((c, i) => {
+                const row = document.createElement('div');
+                row.style.display = "grid";
+                row.style.gridTemplateColumns = "auto 1fr auto";
+                row.style.gap = "10px";
+                row.style.alignItems = "center";
+                const chk = document.createElement('input');
+                chk.type = "checkbox";
+                chk.checked = !!c.resuelto;
+                chk.style.accentColor = "#2ecc71";
+                chk.onclick = () => toggleComentarioResuelto(camara.docId, i);
+                const txt = document.createElement('div');
+                txt.textContent = c.texto || "";
+                txt.style.display = "flex";
+                txt.style.alignItems = "center";
+                const del = document.createElement('button');
+                del.className = "btn-tech";
+                del.style.borderColor = "#e74c3c";
+                del.style.color = "#e74c3c";
+                del.title = "Eliminar";
+                del.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                del.onclick = () => eliminarComentario(camara.docId, i);
+                row.appendChild(chk);
+                row.appendChild(txt);
+                row.appendChild(del);
+                listEl.appendChild(row);
+            });
+            modal.style.display = 'flex';
+        };
+
+        window.cerrarNotaModal = () => {
+            const modal = document.getElementById('nota-modal');
+            modal.style.display = 'none';
+        };
+
+        window.verHerraje = (texto) => {
+            const modal = document.getElementById('herraje-modal');
+            const textEl = document.getElementById('herraje-modal-text');
+            textEl.textContent = texto || '';
+            modal.style.display = 'flex';
+        };
+
+        window.cerrarHerrajeModal = () => {
+            const modal = document.getElementById('herraje-modal');
+            modal.style.display = 'none';
+        };
+
+        let docIdCaptura = null;
+        window.abrirImagenes = (docId) => {
+            docIdCaptura = docId;
+            const current = allCamerasData.find(d => d.docId === docId) || {};
+            const arr = Array.isArray(current.imagenes) ? current.imagenes.slice() : [];
+            const grid = document.getElementById('imagen-grid');
+            grid.innerHTML = "";
+            arr.forEach(item => {
+                const figure = document.createElement('div');
+                figure.style.display = "flex";
+                figure.style.flexDirection = "column";
+                figure.style.gap = "2px";
+                
+                const imgContainer = document.createElement('div');
+                imgContainer.style.position = "relative";
+                imgContainer.style.cursor = "pointer";
+                
+                const img = document.createElement('img');
+                img.src = item.url;
+                img.alt = item.nombre;
+                img.style.width = "140px";
+                img.style.borderRadius = "6px";
+                img.style.transition = "transform 0.2s ease";
+                img.onmouseover = () => img.style.transform = "scale(1.05)";
+                img.onmouseout = () => img.style.transform = "scale(1)";
+                img.onclick = () => abrirVisualizacionPrevia(item.url, item.nombre);
+                
+                const cap = document.createElement('div');
+                cap.textContent = item.nombre;
+                cap.style.fontSize = "12px";
+                cap.style.color = "#bdc3c7";
+                cap.style.textAlign = "center";
+                
+                const downloadBtn = document.createElement('button');
+                downloadBtn.innerHTML = '<i class="fa-solid fa-download"></i> Descargar';
+                downloadBtn.className = "btn-tech";
+                downloadBtn.style.width = "auto";
+                downloadBtn.style.padding = "6px 8px";
+                downloadBtn.style.cursor = "pointer";
+                downloadBtn.style.fontSize = "12px";
+                downloadBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    descargarImagen(item.url, item.nombre);
+                };
+                
+                imgContainer.appendChild(img);
+                figure.appendChild(imgContainer);
+                figure.appendChild(downloadBtn);
+                figure.appendChild(cap);
+                grid.appendChild(figure);
+            });
+            document.getElementById('imagen-modal').style.display = 'flex';
+        };
+        window.cerrarImagenModal = () => {
+            document.getElementById('imagen-modal').style.display = 'none';
+            docIdCaptura = null;
+        };
+
+        window.descargarImagen = (url, nombre) => {
+            fetch(url)
+                .then(response => response.blob())
+                .then(blob => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = nombre;
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                })
+                .catch(error => {
+                    console.error('Error al descargar la imagen:', error);
+                    alert('Error al descargar la imagen. Intente nuevamente.');
+                });
+        };
+
+        window.abrirVisualizacionPrevia = (url, nombre) => {
+            const previewModal = document.getElementById('preview-modal');
+            const previewImage = document.getElementById('preview-image');
+            const previewCaption = document.getElementById('preview-caption');
+            
+            previewImage.src = url;
+            previewImage.alt = nombre;
+            previewCaption.textContent = nombre;
+            
+            previewModal.style.display = 'flex';
+        };
+
+        window.cerrarPreviewModal = () => {
+            document.getElementById('preview-modal').style.display = 'none';
+        };
+
+        window.toggleComentarioResuelto = async (docId, index) => {
+            try {
+                const current = allCamerasData.find(d => d.docId === docId) || {};
+                const arr = Array.isArray(current.comentarios) ? current.comentarios.slice() : [];
+                if (arr.length === 0) {
+                    const legacy = (current.observaciones || current.notas || current.notes || "").trim();
+                    if (legacy) arr.push({ texto: legacy, resuelto: false, fecha: new Date() });
+                }
+                if (arr[index]) {
+                    const now = new Date();
+                    arr[index].resuelto = !arr[index].resuelto;
+                    arr[index].fechaResolucion = arr[index].resuelto ? now : null;
+                }
+                await updateDoc(doc(db, "camaras", docId), {
+                    comentarios: arr,
+                    observaciones: deleteField(),
+                    notas: deleteField(),
+                    notes: deleteField(),
+                    fechaActualizacion: new Date()
+                });
+                const updated = { ...current, comentarios: arr };
+                verObservaciones(updated);
+            } catch (e) {
+                alert("Error al actualizar comentario");
+            }
+        };
+
+        window.eliminarComentario = async (docId, index) => {
+            try {
+                const current = allCamerasData.find(d => d.docId === docId) || {};
+                const arr = Array.isArray(current.comentarios) ? current.comentarios.slice() : [];
+                if (arr.length === 0) {
+                    const legacy = (current.observaciones || current.notas || current.notes || "").trim();
+                    if (legacy) arr.push({ texto: legacy, resuelto: !!current.observacionResuelta, fecha: new Date() });
+                }
+                if (index >= 0 && index < arr.length) {
+                    arr.splice(index, 1);
+                }
+                await updateDoc(doc(db, "camaras", docId), {
+                    comentarios: arr,
+                    observaciones: deleteField(),
+                    notas: deleteField(),
+                    notes: deleteField(),
+                    fechaActualizacion: new Date()
+                });
+                const updated = { ...current, comentarios: arr };
+                verObservaciones(updated);
+            } catch (e) {
+                alert("Error al eliminar comentario");
+            }
+        };
+
+
+        window.cargarParaEditar = (docId, datos) => {
+            document.getElementById('id-camara').value = datos.idCamara || '';
+            document.getElementById('tipo').value = datos.tipo || ''; 
+            document.getElementById('modelo').value = datos.modelo || '';
+            document.getElementById('coordenadas').value = datos.coordenadas || '';
+            document.getElementById('ip').value = datos.ip || '';
+            document.getElementById('etiqueta').value = datos.etiqueta || '';
+            document.getElementById('herraje').value = datos.herraje || '';
+            document.getElementById('notas').value = datos.notas || datos.notes || '';
+            document.getElementById('estado').value = datos.estado || 'Pendiente';
+
+            idEditando = docId;
+            previousNotes = (datos.notas || datos.notes || datos.observaciones || "").trim();
+            submitButton.innerHTML = 'Actualizar Cámara';
+            toggleForm(true);
+            feedbackMessage.textContent = "✏️ Editando ID: " + datos.idCamara;
+        };
+
+        window.cancelarEdicion = () => {
+            cameraForm.reset();
+            idEditando = null;
+            toggleForm(false);
+            feedbackMessage.textContent = "";
+        };
+
+        cameraForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!idEditando) return;
+
+            const datos = {
+                idCamara: document.getElementById('id-camara').value,
+                modelo: document.getElementById('modelo').value,
+                coordenadas: document.getElementById('coordenadas').value,
+                ip: document.getElementById('ip').value,
+                etiqueta: document.getElementById('etiqueta').value,
+                herraje: document.getElementById('herraje').value,
+                notas: document.getElementById('notas').value,
+                estado: document.getElementById('estado').value,
+                fechaActualizacion: new Date()
+            };
+
+            const nuevoComentario = (datos.notas || "").trim();
+            if (nuevoComentario !== "") {
+                const current = allCamerasData.find(d => d.docId === idEditando) || {};
+                const arr = Array.isArray(current.comentarios) ? current.comentarios.slice() : [];
+                arr.push({ texto: nuevoComentario, resuelto: false, fecha: new Date() });
+                datos.comentarios = arr;
+                datos.notas = "";
+                datos.observaciones = deleteField();
+                datos.notes = deleteField();
+            }
+
+            try {
+                await updateDoc(doc(db, "camaras", idEditando), datos);
+                alert("✅ Actualizado");
+                cancelarEdicion();
+            } catch (error) {
+                alert("❌ Error: " + error.message);
+            }
+        });
+
+        window.iniciarComentario = (docId, datos) => {
+            cargarParaEditar(docId, datos);
+            const notasEl = document.getElementById('notas');
+            notasEl.focus();
+            document.getElementById('camera-form-content').scrollIntoView({ behavior: 'smooth' });
+        };
+        window.exportarTabla = () => {
+            // Ordenar por ID de menor a mayor antes de exportar
+            const datosOrdenados = [...allCamerasData].sort((a, b) => {
+                const idA = parseInt(a.idCamara) || 0;
+                const idB = parseInt(b.idCamara) || 0;
+                return idA - idB;
+            });
+            
+            let csvContent = "ID,Modelo,Tipo,Coordenadas,IP,Etiqueta,Estado,Herraje\n";
+            datosOrdenados.forEach(c => {
+                csvContent += `${c.idCamara},${c.modelo},${c.tipo},"${c.coordenadas}",${c.ip},${c.etiqueta},${c.estado},"${c.herraje}"\n`;
+            });
+            const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.setAttribute("href", URL.createObjectURL(blob));
+            link.setAttribute("download", `Reporte_Camaras.csv`);
+            link.click();
+        };
+
+        statusFilter.addEventListener('change', renderTable);
+        searchInput.addEventListener('input', renderTable);
+    </script>
+</body>
+</html>
