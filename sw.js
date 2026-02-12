@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gestion-camaras-v2';
+const CACHE_NAME = 'gestion-camaras-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -49,11 +49,15 @@ self.addEventListener('fetch', (event) => {
     url.pathname.endsWith('.js') ||
     url.pathname.endsWith('.png') ||
     url.pathname.endsWith('.jpg') ||
+    url.pathname.endsWith('.woff2') ||
+    url.pathname.endsWith('.woff') ||
+    url.pathname.endsWith('.ttf') ||
     url.href.includes('fonts.googleapis.com') ||
+    url.href.includes('fonts.gstatic.com') ||
     url.href.includes('cdnjs.cloudflare.com')
   ) {
     event.respondWith(
-      caches.match(event.request).then((response) => {
+      caches.match(event.request, { ignoreSearch: true }).then((response) => {
         if (response) {
           return response;
         }
